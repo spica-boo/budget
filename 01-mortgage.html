@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Modeler — Alister Way Suite</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap');
+:root {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1c2330;
+  --border:#2a3441; --accent:#58c4a0; --accent2:#f0a05a;
+  --accent3:#7da7d9; --danger:#e05c6a; --text:#e2e8f0; --muted:#6e7d8e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;min-height:100vh;padding:20px}
+/* Nav */
+.suite-nav{display:flex;gap:6px;margin-bottom:20px;align-items:center}
+.suite-nav a{padding:5px 14px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;text-decoration:none;border:1px solid var(--border);color:var(--muted);transition:all 0.15s}
+.suite-nav a.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:500}
+.suite-nav a:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+.suite-title{font-family:'Fraunces',serif;font-weight:300;font-size:11px;color:var(--muted);margin-right:8px;letter-spacing:0.06em}
+h1{font-family:'Fraunces',serif;font-weight:300;font-size:24px;color:var(--accent);margin-bottom:2px}
+.subtitle{color:var(--muted);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:14px;max-width:1160px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.panel:last-child{margin-bottom:0}
+.panel-title{font-family:'Fraunces',serif;font-weight:600;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.control-group{margin-bottom:12px}.control-group:last-child{margin-bottom:0}
+.control-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.06em}
+.control-value{font-size:13px;color:var(--text);font-weight:500}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg);box-shadow:0 0 8px rgba(88,196,160,0.4)}
+.slider-bounds{display:none}
+input[type=number]{background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:5px 8px;outline:none;width:100%;transition:border-color 0.15s;-moz-appearance:textfield}
+input[type=number]:focus{border-color:var(--accent)}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
+.toggle-label span{display:block;font-size:11px;color:var(--text);text-transform:none;letter-spacing:0;margin-top:1px}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle input{display:none}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:10px;cursor:pointer;transition:background 0.2s}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:var(--muted);top:3px;left:3px;transition:transform 0.2s,background 0.2s}
+.toggle input:checked+.toggle-slider{background:rgba(88,196,160,0.2)}
+.toggle input:checked+.toggle-slider::before{background:var(--accent);transform:translateX(16px)}
+.tranche-editor{border:1px solid var(--border);border-radius:8px;margin-bottom:7px;overflow:hidden}
+.tranche-editor:last-child{margin-bottom:0}
+.tranche-header{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;background:var(--surface2);cursor:pointer;user-select:none}
+.tranche-header-left{display:flex;align-items:center;gap:9px}
+.tranche-tag{font-size:11px;font-weight:500;color:var(--accent3);min-width:30px}
+.tranche-tag.floating{color:var(--accent2)}
+.tranche-summary{font-size:10px;color:var(--muted)}
+.tranche-chevron{color:var(--muted);font-size:10px;transition:transform 0.2s}
+.tranche-body{padding:11px;display:none;border-top:1px solid var(--border)}
+.tranche-body.open{display:block}
+.tranche-fields{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
+.field input{background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:5px 7px;outline:none;width:100%;transition:border-color 0.15s}
+.field input:focus{border-color:var(--accent3)}
+.field input:disabled{color:var(--muted);cursor:not-allowed;border-color:rgba(240,160,90,0.3)}
+.field-note{font-size:9px;color:var(--accent2);margin-top:2px;line-height:1.4}
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.result-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px;text-align:center}
+.result-card .label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+.result-card .value{font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--accent);line-height:1}
+.result-card .sub{font-size:9px;color:var(--muted);margin-top:2px}
+.chart-area{position:relative;height:210px}
+canvas{width:100%!important;height:100%!important}
+.sum-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--border)}
+.sum-row:last-child{border-bottom:none}
+.sum-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.05em}
+.sum-val{font-family:'Fraunces',serif;font-size:14px;color:var(--text)}
+.sum-val.green{color:var(--accent)}.sum-val.orange{color:var(--accent2)}
+.bal-table{width:100%;border-collapse:collapse;font-size:11px}
+.bal-table th{color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:0.07em;font-weight:400;padding:0 5px 6px;text-align:right;border-bottom:1px solid var(--border)}
+.bal-table th:first-child{text-align:left}
+.bal-table td{padding:4px 5px;text-align:right;border-bottom:1px solid rgba(42,52,65,0.4);color:var(--text)}
+.bal-table td:first-child{text-align:left;color:var(--muted);font-size:10px}
+.bal-table tr:last-child td{border-bottom:none}
+.bal-table td.net{color:var(--accent)}
+.bal-table td.offset-col{color:var(--accent2)}
+.bal-table tr.roll-yr td{color:var(--accent2)}
+.bal-table tr.crossover-yr td{color:var(--accent);font-weight:500}
+.bal-table tr.done td{color:var(--accent);font-weight:500}
+.saving-box{background:rgba(88,196,160,0.07);border:1px solid rgba(88,196,160,0.18);border-radius:6px;padding:7px 11px;font-size:11px;color:var(--muted);margin-top:9px;display:none}
+.saving-box strong{color:var(--accent)}
+.sync-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:4px;background:rgba(88,196,160,0.1);border:1px solid rgba(88,196,160,0.25);font-size:9px;color:var(--accent);margin-left:auto;cursor:default}
+</style>
+</head>
+<body>
+<nav class="suite-nav">
+  <span class="suite-title">Alister Way</span>
+  <a href="01-mortgage.html" class="active">① Mortgage</a>
+  <a href="04-budgets.html">② Budgets</a>
+  <a href="02-kiwisaver.html">③ KiwiSaver & Wealth</a>
+  <a href="03-insurance.html">④ Insurance</a>
+  <a href="05-action-plan.html">⑤ Action Plan</a>
+  <span class="sync-badge" id="syncBadge">● synced</span>
+  <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+    <button onclick="exportSuite()" style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬇ Export</button>
+    <label style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Import<input type="file" accept=".json" onchange="importSuite(event)" style="display:none"></label>
+  </div>
+</nav>
+<h1>Mortgage Modeler</h1>
+<p class="subtitle" id="modelSubtitle">11 Alister Way, Churton Park — live simulation</p>
+
+<div class="layout">
+  <!-- LEFT -->
+  <div>
+    <div class="panel">
+      <div class="panel-title">Current Position</div>
+      <div class="sum-row"><span class="sum-label">Total drawn</span><span class="sum-val" id="sumTotal">—</span></div>
+      <div class="sum-row"><span class="sum-label">Offset balance</span><span class="sum-val orange" id="sumOffset">—</span></div>
+      <div class="sum-row"><span class="sum-label">Net debt</span><span class="sum-val green" id="sumNet">—</span></div>
+      <div class="sum-row"><span class="sum-label">Min repayment</span><span class="sum-val" id="sumMin">—</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Monthly Cashflow</div>
+      <div class="control-group">
+        <div class="control-label"><span>Mortgage repayment</span><span class="control-value" id="payLabel">$2,227</span></div>
+        <input type="number" id="paySlider" min="1000" max="99999" step="50" value="2227" oninput="update()" placeholder="$/mo">
+        <div class="slider-bounds"><span>$2,227 min</span><span>$5,000</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Offset contribution</span><span class="control-value" id="offsetContribLabel">$473</span></div>
+        <input type="number" id="offsetContribSlider" min="0" max="99999" step="50" value="473" oninput="update()" placeholder="$/mo">
+        <div class="slider-bounds"><span>$0</span><span>$3,000</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Starting offset balance</span><span class="control-value" id="offsetLabel">$19,000</span></div>
+        <input type="number" id="offsetSlider" min="0" max="9999999" step="100" value="19000" oninput="update()" placeholder="$">
+        <div class="slider-bounds"><span>$0</span><span>$100k</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Tranches — click to edit</span>
+        <button onclick="clearSavedState()" style="font-size:9px;padding:2px 7px;background:var(--danger);color:#fff;border:none;border-radius:4px;cursor:pointer;opacity:0.7">Reset</button>
+      </div>
+      <div id="trancheEditors"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Scenarios</div>
+      <div class="toggle-row">
+        <div class="toggle-label">Lump sum to offset<span id="bonusDesc">$10,000 in Jun 2026</span></div>
+        <label class="toggle"><input type="checkbox" id="bonusToggle" checked><span class="toggle-slider"></span></label>
+      </div>
+      <div id="bonusControls" style="padding:9px 0 3px;display:flex;flex-direction:column;gap:9px;border-bottom:1px solid var(--border)">
+        <div class="control-group" style="margin-bottom:0">
+          <div class="control-label"><span>Amount</span><span class="control-value" id="bonusAmtLabel">$10,000</span></div>
+          <input type="number" id="bonusAmt" min="0" max="9999999" step="1000" value="10000" oninput="update()" placeholder="$">
+          <div class="slider-bounds"><span>$1k</span><span>$100k</span></div>
+        </div>
+        <div class="control-group" style="margin-bottom:0">
+          <div class="control-label"><span>Month received</span><span class="control-value" id="bonusMonthLabel">Jun 2026</span></div>
+          <input type="number" id="bonusMonth" min="0" max="120" step="1" value="10" oninput="update()" placeholder="months from now">
+          <div class="slider-bounds"><span id="bonusSliderStart"></span><span id="bonusSliderEnd"></span></div>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">Roof Top-up<span id="roofDesc">$30,000 added to M4 floating</span></div>
+        <label class="toggle"><input type="checkbox" id="roofToggle"><span class="toggle-slider"></span></label>
+      </div>
+      <div id="roofControls" style="padding:9px 0 3px">
+        <div class="control-group" style="margin-bottom:0">
+          <div class="control-label"><span>Top-up amount</span><span class="control-value" id="roofAmtLabel">$30,000</span></div>
+          <input type="number" id="roofAmt" min="0" max="9999999" step="1000" value="30000" oninput="update()" placeholder="$">
+          <div class="slider-bounds"><span>$5k</span><span>$150k</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div>
+    <div class="panel">
+      <div class="results-grid">
+        <div class="result-card" style="border-color:var(--accent);background:rgba(88,196,160,0.05);grid-column:span 2">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="text-align:left">
+              <div class="label">🎯 Offset Payoff — offset covers balance</div>
+              <div class="value" id="crossoverYear" style="color:var(--accent);font-size:30px">—</div>
+              <div class="sub" id="crossoverSub" style="margin-top:3px">—</div>
+            </div>
+            <div style="text-align:right">
+              <div class="label">Years to Payoff</div>
+              <div class="value" id="crossoverYears" style="color:var(--accent);font-size:26px">—</div>
+              <div class="sub">from today</div>
+            </div>
+          </div>
+        </div>
+        <div class="result-card" style="border-color:var(--accent3);background:rgba(125,167,217,0.04)">
+          <div class="label">Mortgage Free</div>
+          <div class="value" id="mfYear" style="color:var(--accent3)">—</div>
+          <div class="sub" id="mfMonths">— months</div>
+        </div>
+        <div class="result-card" id="yearsCard">
+          <div class="label" id="yearsLabel">Full Payoff</div>
+          <div class="value" id="mfYears" style="color:var(--accent2)">—</div>
+          <div class="sub" id="yearsSub">years until balance = $0</div>
+        </div>
+        <div class="result-card" style="grid-column:span 2">
+          <div class="label">Total Interest</div>
+          <div class="value" id="totalInterest" style="color:var(--danger);font-size:17px">—</div>
+          <div class="sub">over life of loan</div>
+        </div>
+      </div>
+      <div class="saving-box" id="savingBox">
+        vs. minimum payments: save <strong id="interestSaved">—</strong> interest &amp; <strong id="yearsSaved">—</strong> years
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:10px;overflow-y:auto;max-height:300px">
+      <div class="panel-title">Annual Projection</div>
+      <table class="bal-table">
+        <thead><tr><th>Year</th><th>Total Balance</th><th>Offset</th><th>Net Debt</th></tr></thead>
+        <tbody id="annualTable"></tbody>
+      </table>
+    </div>
+
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-title">Balance &amp; Offset Over Time</div>
+      <div class="chart-area" style="height:260px"><canvas id="chart"></canvas></div>
+    </div>
+
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-title">Tranche Roll Schedule</div>
+      <div id="rollSchedule" style="font-size:11px;color:var(--muted);line-height:1.9"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ── Shared storage key ────────────────────────────────────────────────────────
+const SUITE_KEY = 'alisterway_suite_v1';
+
+function loadSuite() {
+  try { return JSON.parse(localStorage.getItem(SUITE_KEY)) || {}; } catch(e) { return {}; }
+}
+function saveSuite(patch) {
+  const s = loadSuite();
+  Object.assign(s, patch);
+  try { localStorage.setItem(SUITE_KEY, JSON.stringify(s)); } catch(e) {}
+  document.getElementById('syncBadge').textContent = '● synced';
+}
+function clearSavedState() {
+  if (!confirm('Reset all saved values to defaults?')) return;
+  localStorage.removeItem(SUITE_KEY);
+  location.reload();
+}
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const DEFAULT_TRANCHES = [
+  { name:'M1', balance:119258, rate:4.92, expiry:'2027-08', floating:false, rollRate:5.44 },
+  { name:'M2', balance:59360,  rate:4.89, expiry:'2026-08', floating:false, rollRate:5.44 },
+  { name:'M3', balance:120358, rate:4.99, expiry:'2028-04', floating:false, rollRate:5.44 },
+  { name:'M4', balance:34246,  rate:5.44, expiry:null,      floating:true,  rollRate:5.44 },
+];
+const _today = new Date();
+const MODEL_START_YEAR = _today.getFullYear(), MODEL_START_MONTH = _today.getMonth() + 1; // always "right now"
+const LOAN_END_YEAR = 2047, LOAN_END_MONTH = 9;
+const TOTAL_TERM_MONTHS = (LOAN_END_YEAR-MODEL_START_YEAR)*12+(LOAN_END_MONTH-MODEL_START_MONTH);
+
+function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
+function calcMinPay(bal, annualRate, remainingMonths) {
+  if (bal<=0||remainingMonths<=0) return 0;
+  const r = annualRate/12;
+  if (r===0) return bal/remainingMonths;
+  return bal*r/(1-Math.pow(1+r,-remainingMonths));
+}
+function expiryToMonths(str) {
+  if (!str) return null;
+  const [y,m] = str.split('-').map(Number);
+  if (!y||!m) return null;
+  return (y-MODEL_START_YEAR)*12+(m-MODEL_START_MONTH);
+}
+
+// ── Tranche editor ────────────────────────────────────────────────────────────
+function buildEditors() {
+  const c = document.getElementById('trancheEditors');
+  c.innerHTML = '';
+  DEFAULT_TRANCHES.forEach((t,i) => {
+    const d = document.createElement('div');
+    d.className = 'tranche-editor';
+    d.innerHTML = `
+      <div class="tranche-header" onclick="toggleT(${i})">
+        <div class="tranche-header-left">
+          <span class="tranche-tag${t.floating?' floating':''}">${t.name}${t.floating?' ⚡':''}</span>
+          <span class="tranche-summary" id="ts-${i}"></span>
+        </div>
+        <span class="tranche-chevron" id="tc-${i}">▼</span>
+      </div>
+      <div class="tranche-body" id="tb-${i}">
+        <div class="tranche-fields">
+          <div class="field"><label>Balance ($)</label>
+            <input type="number" id="t${i}-bal" value="${t.balance}" step="100" oninput="update()"></div>
+          <div class="field"><label>Rate (%)</label>
+            <input type="number" id="t${i}-rate" value="${t.rate}" step="0.01" min="0" max="20" oninput="update()"></div>
+          <div class="field"><label>Min payment (auto)</label>
+            <input type="text" id="t${i}-min-display" value="calculating…" disabled></div>
+          <div class="field"><label>${t.floating?'Type':'Expiry (YYYY-MM)'}</label>
+            ${t.floating
+              ? `<input type="text" value="Floating (offset applies)" disabled>`
+              : `<input type="text" id="t${i}-exp" value="${t.expiry||''}" placeholder="YYYY-MM" oninput="update()">`
+            }
+          </div>
+          ${!t.floating?`
+          <div class="field" style="grid-column:span 2">
+            <label>Roll-to rate at expiry (%)</label>
+            <input type="number" id="t${i}-roll" value="${t.rollRate}" step="0.01" min="0" max="20" oninput="update()">
+            <div class="field-note">⚡ Rolls to floating at expiry — offset shelters it</div>
+          </div>`:''}
+        </div>
+      </div>`;
+    c.appendChild(d);
+  });
+}
+
+function toggleT(i) {
+  const b = document.getElementById(`tb-${i}`);
+  const c = document.getElementById(`tc-${i}`);
+  b.classList.toggle('open');
+  c.style.transform = b.classList.contains('open')?'rotate(180deg)':'';
+}
+
+function getTranches(roofAdd) {
+  const monthsElapsed = 0; // simulation always starts from today
+  return DEFAULT_TRANCHES.map((t,i) => {
+    const bal = parseFloat(document.getElementById(`t${i}-bal`)?.value)||t.balance;
+    const rateRaw = document.getElementById(`t${i}-rate`)?.value;
+    const rate = (rateRaw!==''&&rateRaw!=null&&!isNaN(parseFloat(rateRaw)))?parseFloat(rateRaw):t.rate;
+    const rollRate = t.floating?rate:(parseFloat(document.getElementById(`t${i}-roll`)?.value)||t.rollRate);
+    const expiry = t.floating?null:(document.getElementById(`t${i}-exp`)?.value?.trim()||t.expiry);
+    const finalBal = bal+(i===3?roofAdd:0);
+    const remainingMonths = TOTAL_TERM_MONTHS-monthsElapsed;
+    const minPay = Math.round(calcMinPay(finalBal,rate/100,remainingMonths));
+    const el = document.getElementById(`t${i}-min-display`);
+    if (el) el.value = `$${minPay.toLocaleString()}/mo`;
+    return {name:t.name,balance:finalBal,rate:rate/100,rollRate:rollRate/100,minPay,fixedUntil:t.floating?null:expiryToMonths(expiry),floating:t.floating,expiry};
+  });
+}
+
+// ── Simulation ────────────────────────────────────────────────────────────────
+function simulate(mortgagePayment, offsetContrib, offsetStart, includeBonus, tranches, bonusAmt, bonusMonth) {
+  let bal=tranches.map(t=>t.balance);
+  let rates=tranches.map(t=>t.rate);
+  let floating=tranches.map(t=>t.floating);
+  let fixedUntil=tranches.map(t=>t.fixedUntil);
+  let rollRates=tranches.map(t=>t.rollRate);
+  const n=tranches.length;
+  function getMinPay(i,month){const rem=TOTAL_TERM_MONTHS-month;return rem>0?calcMinPay(bal[i],rates[i],rem):bal[i];}
+  let offset=offsetStart,totalInterest=0,month=0;
+  const yearlyData=[],rollEvents=[];
+  let crossoverYear=null,prevTotal=null,prevOffset=null;
+  while (month<600) {
+    const total=bal.reduce((a,b)=>a+b,0);
+    if(total<=100) break;
+    for(let i=0;i<n;i++){
+      if(fixedUntil[i]!==null&&month>=fixedUntil[i]&&!floating[i]){
+        floating[i]=true;rates[i]=rollRates[i];fixedUntil[i]=null;
+        const yr=MODEL_START_YEAR+(MODEL_START_MONTH-1+month)/12;
+        rollEvents.push({year:yr,name:tranches[i].name});
+      }
+    }
+    offset+=offsetContrib;
+    if(includeBonus&&month===bonusMonth) offset+=bonusAmt;
+    const floatTotal=bal.reduce((s,b,i)=>floating[i]?s+b:s,0);
+    const offsetUsed=Math.min(offset,floatTotal);
+    const interests=bal.map((b,i)=>{
+      if(floating[i]&&floatTotal>0) return Math.max(0,b-b/floatTotal*offsetUsed)*rates[i]/12;
+      return b*rates[i]/12;
+    });
+    for(let i=0;i<n;i++) bal[i]+=interests[i];
+    totalInterest+=interests.reduce((a,b)=>a+b,0);
+    let rem=mortgagePayment;
+    for(let i=0;i<n;i++){const p=Math.min(getMinPay(i,month),bal[i]);bal[i]-=p;rem-=p;}
+    const order=[...Array(n).keys()].sort((a,b)=>floating[b]!==floating[a]?(floating[b]?1:-1):rates[b]-rates[a]);
+    for(const i of order){if(rem<=0)break;const x=Math.min(rem,bal[i]);bal[i]-=x;rem-=x;}
+    bal=bal.map(b=>Math.max(0,b));
+    const newTotal=bal.reduce((a,b)=>a+b,0);
+    const net=Math.max(0,newTotal-offset);
+    const year=MODEL_START_YEAR+(MODEL_START_MONTH-1+month+1)/12;
+    if(!crossoverYear&&offset>=newTotal){
+      crossoverYear=prevTotal!==null
+        ?year-(1-(prevTotal-prevOffset)/((prevTotal-prevOffset)-(newTotal-offset)))/12
+        :year;
+    }
+    prevTotal=newTotal;prevOffset=offset;
+    if((month+1)%12===0) yearlyData.push({year,total:Math.round(newTotal),net:Math.round(net),offset:Math.round(offset)});
+    month++;
+  }
+  return {months:month,totalInterest:Math.round(totalInterest),yearlyData,rollEvents,crossoverYear};
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+const vLinesPlugin = {
+  id:'vLines',
+  afterDraw(chart,_,opts){
+    const{ctx,scales:{x},chartArea:ca}=chart;
+    (opts.rolls||[]).forEach(yr=>{
+      const px=x.getPixelForValue(yr);
+      if(px<ca.left||px>ca.right)return;
+      ctx.save();ctx.strokeStyle='rgba(240,160,90,0.45)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+      ctx.beginPath();ctx.moveTo(px,ca.top);ctx.lineTo(px,ca.bottom);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+    });
+    if(opts.cross){
+      const px=x.getPixelForValue(opts.cross);
+      if(px>=ca.left&&px<=ca.right){
+        ctx.save();ctx.strokeStyle='rgba(88,196,160,0.75)';ctx.lineWidth=2;ctx.setLineDash([5,3]);
+        ctx.beginPath();ctx.moveTo(px,ca.top);ctx.lineTo(px,ca.bottom);ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='rgba(88,196,160,0.95)';ctx.font='10px DM Mono,monospace';ctx.textAlign='center';
+        ctx.fillText('🎯 PAYOFF',px,ca.top+13);ctx.restore();
+      }
+    }
+  }
+};
+Chart.register(vLinesPlugin);
+
+const chart = new Chart(document.getElementById('chart').getContext('2d'),{
+  type:'line',
+  data:{datasets:[
+    {label:'Total Balance',data:[],borderColor:'#7da7d9',backgroundColor:'rgba(125,167,217,0.07)',borderWidth:2,fill:true,tension:0.3,pointRadius:0},
+    {label:'Net (offset)',  data:[],borderColor:'#58c4a0',backgroundColor:'rgba(88,196,160,0.07)',borderWidth:2,fill:true,tension:0.3,pointRadius:0},
+    {label:'Offset',        data:[],borderColor:'#f0a05a',backgroundColor:'transparent',borderWidth:1.5,borderDash:[4,3],fill:false,tension:0.3,pointRadius:0},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      vLines:{rolls:[],cross:null},
+      legend:{labels:{color:'#6e7d8e',font:{family:'DM Mono',size:10},boxWidth:10}},
+      tooltip:{backgroundColor:'#1c2330',borderColor:'#2a3441',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#6e7d8e',
+        titleFont:{family:'DM Mono'},bodyFont:{family:'DM Mono'},
+        callbacks:{title:items=>Math.floor(items[0].parsed.x)+'',label:item=>item.dataset.label+': '+fmt(item.parsed.y)}}
+    },
+    scales:{
+      x:{type:'linear',ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:10},callback:v=>Math.floor(v)},grid:{color:'#1c2330'},border:{color:'#2a3441'}},
+      y:{ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:10},callback:v=>'$'+(v/1000).toFixed(0)+'k'},grid:{color:'rgba(42,52,65,0.4)'},border:{color:'#2a3441'}}
+    }
+  }
+});
+
+// ── Main update ───────────────────────────────────────────────────────────────
+function update() {
+  const payment       = parseInt(document.getElementById('paySlider').value);
+  const offsetContrib = parseInt(document.getElementById('offsetContribSlider').value);
+  const offsetStart   = parseInt(document.getElementById('offsetSlider').value);
+  const bonus         = document.getElementById('bonusToggle').checked;
+  const bonusAmt      = parseInt(document.getElementById('bonusAmt').value);
+  const bonusMonthRaw = parseInt(document.getElementById('bonusMonth').value);
+  const roofOn        = document.getElementById('roofToggle').checked;
+  const roofAdd       = roofOn?parseInt(document.getElementById('roofAmt').value):0;
+
+  // Labels
+  document.getElementById('payLabel').textContent         = fmt(payment)+'/mo';
+  document.getElementById('offsetContribLabel').textContent= fmt(offsetContrib)+'/mo';
+  document.getElementById('offsetLabel').textContent      = fmt(offsetStart);
+  document.getElementById('bonusAmtLabel').textContent    = fmt(bonusAmt);
+  document.getElementById('roofAmtLabel').textContent     = fmt(roofAdd||parseInt(document.getElementById('roofAmt').value));
+
+  const bonusDate = new Date(MODEL_START_YEAR, MODEL_START_MONTH - 1 + bonusMonthRaw, 1);
+  document.getElementById('bonusMonthLabel').textContent  = bonusDate.toLocaleDateString('en-NZ',{month:'short',year:'numeric'});
+  document.getElementById('bonusDesc').textContent        = `${fmt(bonusAmt)} in ${bonusDate.toLocaleDateString('en-NZ',{month:'short',year:'numeric'})}`;
+  document.getElementById('roofDesc').textContent         = `${fmt(roofAdd||parseInt(document.getElementById('roofAmt').value))} added to M4 floating`;
+  document.getElementById('bonusControls').style.display  = bonus?'flex':'none';
+
+  const tranches  = getTranches(roofAdd);
+  const totalDrawn= tranches.reduce((s,t)=>s+t.balance,0);
+  const minTotal  = tranches.reduce((s,t)=>s+t.minPay,0);
+  const netDebt   = Math.max(0,totalDrawn-offsetStart);
+
+  document.getElementById('sumTotal').textContent = fmt(totalDrawn);
+  document.getElementById('sumOffset').textContent= fmt(offsetStart);
+  document.getElementById('sumNet').textContent   = fmt(netDebt);
+  document.getElementById('sumMin').textContent   = fmt(minTotal)+'/mo';
+
+  tranches.forEach((t,i)=>{
+    const el=document.getElementById(`ts-${i}`);
+    if(el) el.textContent=`${fmt(t.balance)} @ ${(t.rate*100).toFixed(2)}%${t.expiry?' → '+t.expiry:' float'}`;
+  });
+
+  const r = simulate(payment,offsetContrib,offsetStart,bonus,tranches,bonusAmt,bonusMonthRaw);
+  const mfYear = MODEL_START_YEAR+(MODEL_START_MONTH-1+r.months)/12;
+
+  document.getElementById('mfYear').textContent     = Math.floor(mfYear);
+  document.getElementById('mfMonths').textContent   = r.months+' months';
+  document.getElementById('totalInterest').textContent = fmt(r.totalInterest);
+  document.getElementById('mfYears').textContent    = (r.months/12).toFixed(1);
+
+  const isMinimum = payment<=minTotal&&offsetContrib===0;
+  document.getElementById('yearsLabel').textContent = isMinimum?'Full Payoff (minimum payments)':'Full Payoff (this scenario)';
+  document.getElementById('yearsSub').textContent   = isMinimum?'balance fully amortises — no extras':`balance = $0 at ${fmt(payment)}/mo + ${fmt(offsetContrib)} offset`;
+  document.getElementById('yearsCard').style.borderColor = isMinimum?'var(--danger)':'var(--accent2)';
+
+  if (r.crossoverYear) {
+    const yearsTo = (r.crossoverYear-(MODEL_START_YEAR+(MODEL_START_MONTH-1)/12)).toFixed(1);
+    document.getElementById('crossoverYear').textContent  = Math.floor(r.crossoverYear);
+    document.getElementById('crossoverYears').textContent = yearsTo;
+    document.getElementById('crossoverSub').textContent   = 'offset reaches balance — sweep & done';
+  } else {
+    document.getElementById('crossoverYear').textContent  = '—';
+    document.getElementById('crossoverYears').textContent = '—';
+    document.getElementById('crossoverSub').textContent   = "offset doesn't catch up — increase contribution";
+  }
+
+  if (payment>minTotal||offsetContrib>0) {
+    const base = simulate(minTotal,0,offsetStart,bonus,tranches,bonusAmt,bonusMonthRaw);
+    document.getElementById('savingBox').style.display='block';
+    document.getElementById('interestSaved').textContent = fmt(base.totalInterest-r.totalInterest);
+    document.getElementById('yearsSaved').textContent    = ((base.months-r.months)/12).toFixed(1)+' yrs';
+  } else {
+    document.getElementById('savingBox').style.display='none';
+  }
+
+  chart.data.datasets[0].data = r.yearlyData.map(d=>({x:d.year,y:d.total}));
+  chart.data.datasets[1].data = r.yearlyData.map(d=>({x:d.year,y:d.net}));
+  chart.data.datasets[2].data = r.yearlyData.map(d=>({x:d.year,y:d.offset}));
+  chart.options.plugins.vLines.rolls = r.rollEvents.map(e=>e.year);
+  chart.options.plugins.vLines.cross = r.crossoverYear;
+  chart.update('none');
+
+  const rollYearSet = new Set(r.rollEvents.map(e=>Math.floor(e.year)));
+  document.getElementById('annualTable').innerHTML = r.yearlyData.map(d=>{
+    const yr=Math.floor(d.year);
+    const isRoll=rollYearSet.has(yr);
+    const isCross=r.crossoverYear&&Math.abs(d.year-r.crossoverYear)<0.6;
+    const isDone=d.total<=100;
+    const names=r.rollEvents.filter(e=>Math.floor(e.year)===yr).map(e=>e.name).join('+');
+    const tag=isDone?' ✓':isCross?' 🎯':isRoll?` ⚡${names}`:'';
+    const cls=isDone?'done':isCross?'crossover-yr':isRoll?'roll-yr':'';
+    return `<tr class="${cls}"><td>${yr}${tag}</td><td>${isDone?'—':fmt(d.total)}</td><td class="offset-col">${fmt(d.offset)}</td><td class="net">${isDone?'FREE':isCross?'PAYOFF':fmt(d.net)}</td></tr>`;
+  }).join('');
+
+  // Roll schedule panel
+  const rolls = [...tranches].filter(t=>t.expiry).map(t=>`<span style="color:var(--accent2)">⚡ ${t.name}</span> expires ${t.expiry} → rolls to floating @ ${(t.rollRate*100).toFixed(2)}%`);
+  document.getElementById('rollSchedule').innerHTML = rolls.join('<br>') || '<span style="color:var(--muted)">No fixed tranches with expiry</span>';
+
+  // Dynamic date labels — always reflect actual today
+  const todayLabel = new Date(MODEL_START_YEAR, MODEL_START_MONTH-1, 1)
+    .toLocaleDateString('en-NZ',{month:'short',year:'numeric'});
+  const plus5Label = new Date(MODEL_START_YEAR, MODEL_START_MONTH-1+60, 1)
+    .toLocaleDateString('en-NZ',{month:'short',year:'numeric'});
+  const sliderStart = document.getElementById('bonusSliderStart');
+  const sliderEnd   = document.getElementById('bonusSliderEnd');
+  if(sliderStart) sliderStart.textContent = todayLabel;
+  if(sliderEnd)   sliderEnd.textContent   = plus5Label;
+  document.getElementById('modelSubtitle').textContent =
+    `11 Alister Way, Churton Park — simulation from ${todayLabel}`;
+
+  // Save shared state for other tools
+  const mortgageByYear = {};
+  r.yearlyData.forEach(d=>{ mortgageByYear[Math.floor(d.year)]=d.net; });
+  saveSuite({
+    mortgage: {
+      payment, offsetContrib, offsetStart, bonus, bonusAmt, bonusMonthRaw, roofOn, roofAdd,
+      totalDrawn, minTotal, netDebt,
+      mortgageFreeYear: Math.floor(mfYear),
+      mortgageFreeMonths: r.months,
+      crossoverYear: r.crossoverYear,
+      totalInterest: r.totalInterest,
+      mortgageByYear,
+      tranches: DEFAULT_TRANCHES.map((_,i)=>({
+        bal: document.getElementById(`t${i}-bal`)?.value,
+        rate: document.getElementById(`t${i}-rate`)?.value,
+        exp: document.getElementById(`t${i}-exp`)?.value,
+        roll: document.getElementById(`t${i}-roll`)?.value,
+      }))
+    }
+  });
+}
+
+// ── Load state ────────────────────────────────────────────────────────────────
+function loadState() {
+  const s = loadSuite();
+  const m = s.mortgage;
+  if (!m) return;
+  const set = (id,val)=>{ const el=document.getElementById(id); if(el&&val!=null) el.value=val; };
+  set('paySlider',m.payment);
+  set('offsetContribSlider',m.offsetContrib);
+  set('offsetSlider',m.offsetStart);
+  set('bonusAmt',m.bonusAmt);
+  set('bonusMonth',m.bonusMonthRaw);
+  set('roofAmt',m.roofAdd||30000);
+  if(m.bonus!=null) document.getElementById('bonusToggle').checked=m.bonus;
+  if(m.roofOn!=null) document.getElementById('roofToggle').checked=m.roofOn;
+  if(m.tranches) m.tranches.forEach((t,i)=>{
+    set(`t${i}-bal`,t.bal);set(`t${i}-rate`,t.rate);
+    set(`t${i}-exp`,t.exp);set(`t${i}-roll`,t.roll);
+  });
+}
+
+buildEditors();
+loadState();
+['paySlider','offsetContribSlider','offsetSlider','bonusAmt','bonusMonth','roofAmt']
+  .forEach(id=>document.getElementById(id).addEventListener('input',update));
+['bonusToggle','roofToggle']
+  .forEach(id=>document.getElementById(id).addEventListener('change',update));
+DEFAULT_TRANCHES.forEach((_,i)=>{
+  ['bal','rate','exp','roll'].forEach(f=>{
+    const el=document.getElementById(`t${i}-${f}`);
+    if(el&&!el.disabled) el.addEventListener('input',update);
+  });
+});
+update();
+
+// ── Backup / Restore ─────────────────────────────────────────────────────────
+function exportSuite() {
+  const data = localStorage.getItem('alisterway_suite_v1') || '{}';
+  const date = new Date().toISOString().slice(0,10);
+  const filename = 'alisterway-backup-' + date + '.json';
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+}
+function importSuite(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!confirm('This will overwrite all current data with the backup. Continue?')) return;
+      localStorage.setItem('alisterway_suite_v1', JSON.stringify(parsed));
+      alert('Restored successfully. Reloading...');
+      location.reload();
+    } catch(err) {
+      alert('Invalid backup file - could not restore.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+</script>
+</body>
+</html>

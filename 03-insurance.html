@@ -470,6 +470,40 @@ renderMilestones();
   .forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input',update); });
 document.getElementById('upsizeToggle').addEventListener('change',update);
 update();
+
+// ── Backup / Restore ─────────────────────────────────────────────────────────
+function exportSuite() {
+  const data = localStorage.getItem('alisterway_suite_v1') || '{}';
+  const date = new Date().toISOString().slice(0,10);
+  const filename = 'alisterway-backup-' + date + '.json';
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+}
+function importSuite(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!confirm('This will overwrite all current data with the backup. Continue?')) return;
+      localStorage.setItem('alisterway_suite_v1', JSON.stringify(parsed));
+      alert('Restored successfully. Reloading...');
+      location.reload();
+    } catch(err) {
+      alert('Invalid backup file - could not restore.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
 </script>
 </body>
 </html>
