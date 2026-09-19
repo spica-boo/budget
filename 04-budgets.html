@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Buckets — Alister Way Suite</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap');
+:root {
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2330;
+  --border:#2a3441;--accent:#58c4a0;--accent2:#f0a05a;
+  --accent3:#7da7d9;--danger:#e05c6a;--text:#e2e8f0;--muted:#6e7d8e;
+  --rates:#7da7d9;--insurance:#f0a05a;--kids:#b48ef0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;min-height:100vh;padding:20px}
+.suite-nav{display:flex;gap:6px;margin-bottom:20px;align-items:center}
+.suite-nav a{padding:5px 14px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;text-decoration:none;border:1px solid var(--border);color:var(--muted);transition:all 0.15s}
+.suite-nav a.active{background:var(--kids);color:var(--bg);border-color:var(--kids);font-weight:500}
+.suite-nav a:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+.suite-title{font-family:'Fraunces',serif;font-weight:300;font-size:11px;color:var(--muted);margin-right:8px;letter-spacing:0.06em}
+.sync-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:4px;background:rgba(88,196,160,0.1);border:1px solid rgba(88,196,160,0.25);font-size:9px;color:var(--accent);margin-left:auto}
+h1{font-family:'Fraunces',serif;font-weight:300;font-size:24px;color:var(--kids);margin-bottom:2px}
+.subtitle{color:var(--muted);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:14px;max-width:1160px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.panel:last-child{margin-bottom:0}
+.panel-title{font-family:'Fraunces',serif;font-weight:600;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.control-group{margin-bottom:11px}.control-group:last-child{margin-bottom:0}
+.control-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.06em}
+.control-value{font-size:13px;color:var(--text);font-weight:500}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer}
+input[type=range].rates::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--rates);cursor:pointer;border:2px solid var(--bg)}
+input[type=range].insurance::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--insurance);cursor:pointer;border:2px solid var(--bg)}
+input[type=range].kids::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--kids);cursor:pointer;border:2px solid var(--bg)}
+.slider-bounds{display:none}
+input[type=number]{background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:5px 8px;outline:none;width:100%;transition:border-color 0.15s;-moz-appearance:textfield}
+input[type=number]:focus{border-color:var(--accent2)}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+.field{display:flex;flex-direction:column;gap:3px;margin-bottom:8px}
+.field:last-child{margin-bottom:0}
+.field label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
+.field input{background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:5px 7px;outline:none;width:100%;transition:border-color 0.15s}
+.field input:focus{border-color:var(--accent)}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+
+/* Bucket cards */
+.bucket-card{border-radius:10px;padding:14px;margin-bottom:10px;border:1px solid}
+.bucket-card.rates{border-color:rgba(125,167,217,0.3);background:rgba(125,167,217,0.04)}
+.bucket-card.insurance{border-color:rgba(240,160,90,0.3);background:rgba(240,160,90,0.04)}
+.bucket-card.kids{border-color:rgba(180,142,240,0.3);background:rgba(180,142,240,0.04)}
+.bucket-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.bucket-name{font-family:'Fraunces',serif;font-size:16px;font-weight:600}
+.bucket-name.rates{color:var(--rates)}
+.bucket-name.insurance{color:var(--insurance)}
+.bucket-name.kids{color:var(--kids)}
+.bucket-status{font-size:9px;font-weight:500;padding:3px 9px;border-radius:3px;text-transform:uppercase;letter-spacing:0.06em}
+.bucket-status.ok{background:rgba(88,196,160,0.12);color:var(--accent)}
+.bucket-status.warn{background:rgba(224,92,106,0.12);color:var(--danger)}
+.bucket-status.tight{background:rgba(240,160,90,0.12);color:var(--accent2)}
+.bucket-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.metric{text-align:center}
+.metric .label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px}
+.metric .value{font-family:'Fraunces',serif;font-size:17px;font-weight:600}
+.bucket-bar-wrap{height:5px;background:var(--border);border-radius:3px;margin-bottom:10px;overflow:hidden}
+.bucket-bar{height:100%;border-radius:3px;transition:width 0.3s}
+.event-list{font-size:10px}
+.event-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(42,52,65,0.4)}
+.event-row:last-child{border-bottom:none}
+.event-date{color:var(--muted)}
+.event-desc{color:var(--text);flex:1;padding:0 8px}
+.event-amount{font-weight:500}
+.event-amount.debit{color:var(--danger)}
+.event-amount.credit{color:var(--accent)}
+.event-balance{color:var(--muted);font-size:9px;min-width:60px;text-align:right}
+.event-balance.neg{color:var(--danger)}
+.chart-area{position:relative;height:200px;margin-top:8px}
+canvas{width:100%!important;height:100%!important}
+.bill-editor{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px;margin-top:8px}
+.bill-editor-title{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px}
+.add-btn{font-size:9px;padding:2px 8px;cursor:pointer;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--accent);font-family:'DM Mono',monospace}
+.del-btn{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0 2px;line-height:1}
+.del-btn:hover{color:var(--danger)}
+.sufficiency-box{border-radius:6px;padding:8px 11px;font-size:10px;line-height:1.7;margin-top:8px}
+.sufficiency-box.ok{background:rgba(88,196,160,0.07);border:1px solid rgba(88,196,160,0.18);color:var(--muted)}
+.sufficiency-box.warn{background:rgba(224,92,106,0.07);border:1px solid rgba(224,92,106,0.18);color:var(--muted)}
+.sufficiency-box.tight{background:rgba(240,160,90,0.07);border:1px solid rgba(240,160,90,0.18);color:var(--muted)}
+.summary-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--border)}
+.summary-row:last-child{border-bottom:none}
+.summary-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.05em}
+.summary-val{font-family:'Fraunces',serif;font-size:14px}
+</style>
+</head>
+<body>
+<nav class="suite-nav">
+  <span class="suite-title">Alister Way</span>
+  <a href="01-mortgage.html">① Mortgage</a>
+  <a href="04-budgets.html" class="active">② Budgets</a>
+  <a href="02-kiwisaver.html">③ KiwiSaver & Wealth</a>
+  <a href="03-insurance.html">④ Insurance</a>
+  <a href="05-action-plan.html">⑤ Action Plan</a>
+  <span class="sync-badge" id="syncBadge">● synced</span>
+  <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+    <button onclick="exportSuite()" style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬇ Export</button>
+    <label style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Import<input type="file" accept=".json" onchange="importSuite(event)" style="display:none"></label>
+  </div>
+</nav>
+<h1>Budget Buckets</h1>
+<p class="subtitle" id="pageSubtitle">Sinking funds — 12-month rolling view</p>
+
+<div class="layout">
+  <!-- LEFT: inputs -->
+  <div>
+    <!-- SUMMARY -->
+    <div class="panel">
+      <div class="panel-title">Monthly Outflows Summary</div>
+      <div class="summary-row"><span class="summary-label">Rates contribution</span><span class="summary-val" id="sumRates" style="color:var(--rates)">—</span></div>
+      <div class="summary-row"><span class="summary-label">Insurance contributions</span><span class="summary-val" id="sumIns" style="color:var(--insurance)">—</span></div>
+      <div class="summary-row"><span class="summary-label">Kids contribution</span><span class="summary-val" id="sumKids" style="color:var(--kids)">—</span></div>
+      <div class="summary-row"><span class="summary-label">Total monthly</span><span class="summary-val" id="sumTotal" style="color:var(--accent)">—</span></div>
+      <div class="summary-row"><span class="summary-label">Bills — next 12 months</span><span class="summary-val" id="sumAnnual" style="color:var(--muted)">—</span></div>
+    </div>
+
+    <!-- RATES -->
+    <div class="panel">
+      <div class="panel-title" style="color:var(--rates);cursor:pointer" onclick="togglePanel('rates')">
+        <span>Rates &amp; Water</span>
+        <div style="display:flex;align-items:center;gap:7px">
+          <button class="add-btn" onclick="event.stopPropagation();resetBucket('rates')" style="color:var(--danger);border-color:var(--danger)">reset</button>
+          <button class="add-btn" onclick="event.stopPropagation();addRatesBill()">+ bill</button>
+          <span id="ratesPanelChevron" style="color:var(--muted);font-size:10px;transition:transform 0.2s">▲</span>
+        </div>
+      </div>
+      <div id="ratesPanelBody">
+      <div class="control-group">
+        <div class="control-label"><span>Current balance</span><span class="control-value" id="ratesBalLabel">$4,569</span></div>
+        <input type="number" class="rates" id="ratesBal" min="0" max="9999999" step="50" value="4569" oninput="update()" placeholder="$">
+        <div class="slider-bounds"><span>$0</span><span>$10k</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Monthly contribution</span><span class="control-value" id="ratesContribLabel">$450</span></div>
+        <input type="number" class="rates" id="ratesContrib" min="0" max="99999" step="25" value="450" oninput="update()" placeholder="$/mo">
+        <div class="slider-bounds"><span>$0</span><span>$1,000</span></div>
+      </div>
+      <div class="bill-editor">
+        <div class="bill-editor-title">Quarterly bills (rating year)</div>
+        <div id="ratesBillList"></div>
+      </div>
+      <div id="ratesSufficiency" class="sufficiency-box ok" style="margin-top:8px"></div>
+      </div><!-- /ratesPanelBody -->
+    </div>
+
+    <!-- INSURANCE -->
+    <div class="panel">
+      <div class="panel-title" style="color:var(--insurance);cursor:pointer" onclick="togglePanel('ins')">
+        <span>Insurance</span>
+        <div style="display:flex;align-items:center;gap:7px">
+          <button class="add-btn" onclick="event.stopPropagation();resetBucket('ins')" style="color:var(--danger);border-color:var(--danger)">reset</button>
+          <button class="add-btn" onclick="event.stopPropagation();addInsuranceBill()">+ policy</button>
+          <span id="insPanelChevron" style="color:var(--muted);font-size:10px;transition:transform 0.2s">▲</span>
+        </div>
+      </div>
+      <div id="insPanelBody">
+      <div class="control-group">
+        <div class="control-label"><span>Current balance</span><span class="control-value" id="insBalLabel">$1,700</span></div>
+        <input type="number" class="insurance" id="insBal" min="0" max="9999999" step="50" value="1700" oninput="update()" placeholder="$">
+        <div class="slider-bounds"><span>$0</span><span>$5k</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Monthly contribution</span><span class="control-value" id="insContribLabel">$210</span></div>
+        <input type="number" class="insurance" id="insContrib" min="0" max="99999" step="10" value="210" oninput="update()" placeholder="$/mo">
+        <div class="slider-bounds"><span>$0</span><span>$600</span></div>
+      </div>
+      <div class="bill-editor">
+        <div class="bill-editor-title">Annual bills</div>
+        <div id="insBillList"></div>
+      </div>
+      <div id="insSufficiency" class="sufficiency-box ok" style="margin-top:8px"></div>
+      </div><!-- /insPanelBody -->
+    </div>
+
+    <!-- KIDS -->
+    <div class="panel">
+      <div class="panel-title" style="color:var(--kids);cursor:pointer" onclick="togglePanel('kids')">
+        <span>Kids</span>
+        <div style="display:flex;align-items:center;gap:7px">
+          <button class="add-btn" onclick="event.stopPropagation();resetBucket('kids')" style="color:var(--danger);border-color:var(--danger)">reset</button>
+          <button class="add-btn" onclick="event.stopPropagation();addKidsBill()">+ spend</button>
+          <span id="kidsPanelChevron" style="color:var(--muted);font-size:10px;transition:transform 0.2s">▲</span>
+        </div>
+      </div>
+      <div id="kidsPanelBody">
+      <div class="control-group">
+        <div class="control-label"><span>Current balance</span><span class="control-value" id="kidsBalLabel">$3,857</span></div>
+        <input type="number" class="kids" id="kidsBal" min="0" max="9999999" step="50" value="3857" oninput="update()" placeholder="$">
+        <div class="slider-bounds"><span>$0</span><span>$8k</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Monthly contribution</span><span class="control-value" id="kidsContribLabel">$210</span></div>
+        <input type="number" class="kids" id="kidsContrib" min="0" max="99999" step="10" value="210" oninput="update()" placeholder="$/mo">
+        <div class="slider-bounds"><span>$0</span><span>$600</span></div>
+      </div>
+      <div class="bill-editor">
+        <div class="bill-editor-title">Known spend events</div>
+        <div id="kidsBillList"></div>
+      </div>
+      <div id="kidsSufficiency" class="sufficiency-box ok" style="margin-top:8px"></div>
+      </div><!-- /kidsPanelBody -->
+    </div>
+
+  </div>
+
+  <!-- RIGHT: charts and projections -->
+  <div>
+    <!-- Combined chart -->
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-title">12-Month Balance Projection — All Buckets</div>
+      <div class="chart-area" style="height:240px"><canvas id="combinedChart"></canvas></div>
+    </div>
+
+    <!-- Rates bucket card -->
+    <div class="bucket-card rates" id="ratesCard">
+      <div class="bucket-header">
+        <div>
+          <div class="bucket-name rates">Rates &amp; Water</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">$1,318.43/quarter · rating year Jul–Jun</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="bucket-status" id="ratesStatus">—</span>
+          <button onclick="toggleEvents('rates')" id="ratesToggleBtn" style="font-size:9px;padding:2px 8px;cursor:pointer;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-family:'DM Mono',monospace">show ▼</button>
+        </div>
+      </div>
+      <div class="bucket-metrics">
+        <div class="metric"><div class="label">Balance now</div><div class="value" id="ratesBalNow" style="color:var(--rates)">—</div></div>
+        <div class="metric"><div class="label">Next bill</div><div class="value" id="ratesNextBill" style="color:var(--accent2)">—</div></div>
+        <div class="metric"><div class="label">Balance after</div><div class="value" id="ratesAfterBill" style="color:var(--muted)">—</div></div>
+      </div>
+      <div class="bucket-bar-wrap"><div class="bucket-bar" id="ratesBar" style="background:var(--rates)"></div></div>
+      <div id="ratesEventsWrap" style="display:none"><div class="event-list" id="ratesEvents"></div></div>
+    </div>
+
+    <!-- Insurance bucket card -->
+    <div class="bucket-card insurance" id="insCard">
+      <div class="bucket-header">
+        <div>
+          <div class="bucket-name insurance">Insurance</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px" id="insSubtitle">Multiple policies · annual premiums</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="bucket-status" id="insStatus">—</span>
+          <button onclick="toggleEvents('ins')" id="insToggleBtn" style="font-size:9px;padding:2px 8px;cursor:pointer;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-family:'DM Mono',monospace">show ▼</button>
+        </div>
+      </div>
+      <div class="bucket-metrics">
+        <div class="metric"><div class="label">Balance now</div><div class="value" id="insBalNow" style="color:var(--insurance)">—</div></div>
+        <div class="metric"><div class="label">Next bill</div><div class="value" id="insNextBill" style="color:var(--accent2)">—</div></div>
+        <div class="metric"><div class="label">Balance after</div><div class="value" id="insAfterBill" style="color:var(--muted)">—</div></div>
+      </div>
+      <div class="bucket-bar-wrap"><div class="bucket-bar" id="insBar" style="background:var(--insurance)"></div></div>
+      <div id="insEventsWrap" style="display:none"><div class="event-list" id="insEvents"></div></div>
+    </div>
+
+    <!-- Kids long-range chart -->
+    <div class="panel" style="margin-bottom:10px">
+      <div class="panel-title" style="color:var(--kids)">Kids Bucket — Full Timeline to 2037</div>
+      <div style="position:relative;height:220px"><canvas id="kidsLongChart"></canvas></div>
+      <!-- Milestones -->
+      <div id="kidsMilestones" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"></div>
+    </div>
+
+    <!-- Kids bucket card -->
+    <div class="bucket-card kids" id="kidsCard">
+      <div class="bucket-header">
+        <div>
+          <div class="bucket-name kids">Kids</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">School fees, uniforms &amp; activities</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="bucket-status" id="kidsStatus">—</span>
+          <button onclick="toggleEvents('kids')" id="kidsToggleBtn" style="font-size:9px;padding:2px 8px;cursor:pointer;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--muted);font-family:'DM Mono',monospace">show ▼</button>
+        </div>
+      </div>
+      <div class="bucket-metrics">
+        <div class="metric"><div class="label">Balance now</div><div class="value" id="kidsBalNow" style="color:var(--kids)">—</div></div>
+        <div class="metric"><div class="label">Annual spend</div><div class="value" id="kidsAnnualSpend" style="color:var(--accent2)">—</div></div>
+        <div class="metric"><div class="label">Year-end balance</div><div class="value" id="kidsYearEnd" style="color:var(--muted)">—</div></div>
+      </div>
+      <div class="bucket-bar-wrap"><div class="bucket-bar" id="kidsBar" style="background:var(--kids)"></div></div>
+      <div id="kidsEventsWrap" style="display:none"><div class="event-list" id="kidsEvents"></div></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ── Shared storage ────────────────────────────────────────────────────────────
+const SUITE_KEY = 'alisterway_suite_v1';
+function loadSuite(){ try{return JSON.parse(localStorage.getItem(SUITE_KEY))||{};}catch(e){return{};} }
+function saveSuite(patch){ const s=loadSuite();Object.assign(s,patch);try{localStorage.setItem(SUITE_KEY,JSON.stringify(s));}catch(e){} }
+
+// ── Defaults ──────────────────────────────────────────────────────────────────
+const today = new Date();
+const todayYear = today.getFullYear();
+const todayMonth = today.getMonth(); // 0-indexed
+
+function monthLabel(year, month) {
+  return new Date(year, month, 1).toLocaleDateString('en-NZ', {month:'short', year:'numeric'});
+}
+function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
+function fmtShort(n){ return '$'+Math.abs(Math.round(n)).toLocaleString(); }
+
+// Build next 12 months array
+function next12Months() {
+  const months = [];
+  for (let i=0; i<13; i++) {
+    const d = new Date(todayYear, todayMonth+i, 1);
+    months.push({year:d.getFullYear(), month:d.getMonth(), label:monthLabel(d.getFullYear(),d.getMonth())});
+  }
+  return months;
+}
+
+// ── Default bill schedules ────────────────────────────────────────────────────
+let ratesBills = [
+  {month:7, year:2026, amount:1318.43, desc:'Q1 Rates & Water'},
+  {month:10,year:2026, amount:1318.43, desc:'Q2 Rates & Water'},
+  {month:1, year:2027, amount:1318.43, desc:'Q3 Rates & Water'},
+  {month:4, year:2027, amount:1318.43, desc:'Q4 Rates & Water'},
+];
+let insuranceBills = [
+  {month:8, year:2026, amount:2500, desc:'Home insurance'},
+  {month:8, year:2026, amount:0,    desc:'Vehicle insurance'},
+  {month:8, year:2026, amount:0,    desc:'Contents insurance'},
+];
+let kidsBills = [
+  // Miss 12 — College startup 2027
+  {month:0, year:2027, amount:1000, desc:'Miss 12 — College uniform & shoes'},
+  {month:1, year:2027, amount:500,  desc:'Miss 12 — College fee Y9'},
+  {month:1, year:2028, amount:500,  desc:'Miss 12 — College fee Y10'},
+  {month:1, year:2029, amount:500,  desc:'Miss 12 — College fee Y11'},
+  {month:1, year:2030, amount:500,  desc:'Miss 12 — College fee Y12'},
+  {month:1, year:2031, amount:500,  desc:'Miss 12 — College fee Y13'},
+  // Miss 6 — Primary 2027–2032
+  {month:1, year:2027, amount:900,  desc:'Miss 6 — Primary fee Y3'},
+  {month:1, year:2028, amount:900,  desc:'Miss 6 — Primary fee Y4'},
+  {month:1, year:2029, amount:900,  desc:'Miss 6 — Primary fee Y5'},
+  {month:1, year:2030, amount:900,  desc:'Miss 6 — Primary fee Y6'},
+  {month:1, year:2031, amount:900,  desc:'Miss 6 — Primary fee Y7'},
+  {month:1, year:2032, amount:900,  desc:'Miss 6 — Primary fee Y8'},
+  // Miss 6 — College startup & fees 2033–2037
+  {month:0, year:2033, amount:1000, desc:'Miss 6 — College uniform & shoes'},
+  {month:1, year:2033, amount:500,  desc:'Miss 6 — College fee Y9'},
+  {month:1, year:2034, amount:500,  desc:'Miss 6 — College fee Y10'},
+  {month:1, year:2035, amount:500,  desc:'Miss 6 — College fee Y11'},
+  {month:1, year:2036, amount:500,  desc:'Miss 6 — College fee Y12'},
+  {month:1, year:2037, amount:500,  desc:'Miss 6 — College fee Y13'},
+];
+
+// ── Bill list renderers ───────────────────────────────────────────────────────
+function renderBillList(containerId, bills, color, onDelete) {
+  const c = document.getElementById(containerId);
+  if (!bills.length) { c.innerHTML = '<div style="font-size:9px;color:var(--muted);padding:4px 0">No bills added</div>'; return; }
+
+  // Group by year
+  const years = [...new Set(bills.map(b=>b.year))].sort();
+  let html = '';
+  years.forEach(yr => {
+    const yearBills = bills.filter(b=>b.year===yr);
+    const futureBills = yearBills.filter(b=>new Date(b.year,b.month,1)>=new Date(todayYear,todayMonth,1));
+    const yearTotal = yearBills.reduce((s,b)=>s+b.amount,0);
+    const isPast    = yr < todayYear;
+    const isCurrent = yr === todayYear;
+    const isOpen    = isCurrent || (!isPast && yr === years.find(y=>y>=todayYear)); // expand nearest future year
+    const uid = containerId + '_yr_' + yr;
+    const yearLabel = isPast
+      ? `<span style="color:var(--muted);text-decoration:line-through">${yr} — paid</span>`
+      : futureBills.length < yearBills.length
+        ? `<span>${yr} <span style="color:var(--accent);font-size:8px">● partial</span></span>`
+        : `<span>${yr}</span>`;
+
+    html += `<div style="margin-bottom:8px">
+      <div onclick="document.getElementById('${uid}').style.display=document.getElementById('${uid}').style.display==='none'?'block':'none';this.querySelector('.yr-chev').style.transform=document.getElementById('${uid}').style.display==='none'?'rotate(180deg)':''"
+        style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;padding:4px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;cursor:pointer">
+        ${yearLabel}
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="color:${isPast?'var(--muted)':color}">${isPast?'—':fmt(yearTotal)}</span>
+          <span class="yr-chev" style="font-size:9px;color:var(--muted);transition:transform 0.15s;${isOpen?'':'transform:rotate(180deg)'}">▲</span>
+        </div>
+      </div>
+      <div id="${uid}" style="display:${isOpen?'block':'none'}">`;
+
+    yearBills.forEach(b => {
+      const i = bills.indexOf(b);
+      const billPast = new Date(b.year,b.month,1) < new Date(todayYear,todayMonth,1);
+      html += `<div style="display:grid;grid-template-columns:65px 1fr 65px 18px;gap:5px;align-items:center;margin-bottom:4px;opacity:${billPast?0.4:1}">
+        <input type="text" value="${monthLabel(b.year,b.month)}" placeholder="Mon YYYY"
+          style="background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:10px;padding:3px 5px;outline:none"
+          onchange="updateBillMonth('${containerId}',${i},this.value)" />
+        <input type="text" value="${b.desc}"
+          style="background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;padding:3px 5px;outline:none;width:100%"
+          onchange="updateBillDesc('${containerId}',${i},this.value)" />
+        <input type="number" value="${b.amount}" step="0.01"
+          style="background:var(--bg);border:1px solid var(--border);border-radius:4px;color:${billPast?'var(--muted)':color};font-family:'DM Mono',monospace;font-size:10px;padding:3px 5px;outline:none;text-align:right"
+          onchange="updateBillAmount('${containerId}',${i},this.value)" />
+        <button class="del-btn" onclick="deleteBill('${containerId}',${i})">×</button>
+      </div>`;
+    });
+    html += '</div></div>';
+  });
+  c.innerHTML = html;
+}
+
+function getBillsFor(containerId) {
+  if (containerId==='ratesBillList') return ratesBills;
+  if (containerId==='insBillList') return insuranceBills;
+  return kidsBills;
+}
+
+function updateBillMonth(id, i, val) {
+  const bills = getBillsFor(id);
+  const d = new Date(val);
+  if (!isNaN(d)) { bills[i].month = d.getMonth(); bills[i].year = d.getFullYear(); }
+  renderAllBillLists(); update();
+}
+function updateBillDesc(id, i, val) { getBillsFor(id)[i].desc = val; update(); }
+function updateBillAmount(id, i, val) { getBillsFor(id)[i].amount = parseFloat(val)||0; update(); }
+function deleteBill(id, i) { getBillsFor(id).splice(i,1); renderAllBillLists(); update(); }
+
+function addRatesBill() {
+  ratesBills.push({month:todayMonth, year:todayYear+1, amount:1318.43, desc:'Rates & Water'});
+  renderAllBillLists(); update();
+}
+function addInsuranceBill() {
+  insuranceBills.push({month:8, year:todayYear+1, amount:0, desc:'New policy'});
+  renderAllBillLists(); update();
+}
+function addKidsBill() {
+  kidsBills.push({month:todayMonth, year:todayYear, amount:0, desc:'School spend'});
+  renderAllBillLists(); update();
+}
+
+function renderAllBillLists() {
+  renderBillList('ratesBillList', ratesBills, 'var(--rates)', 'ratesBillList');
+  renderBillList('insBillList', insuranceBills, 'var(--insurance)', 'insBillList');
+  renderBillList('kidsBillList', kidsBills, 'var(--kids)', 'kidsBillList');
+}
+
+// ── Simulate a bucket over N months ──────────────────────────────────────────
+function simulateBucket(startBal, monthlyContrib, bills, months) {
+  if (!months) months = next12Months();
+  let bal = startBal;
+  const data = [];
+  const events = [];
+
+  months.forEach((m, idx) => {
+    if (idx > 0) bal += monthlyContrib;
+    // Only count bills that are today or in the future
+    const monthBills = bills.filter(b =>
+      b.month === m.month && b.year === m.year &&
+      new Date(b.year, b.month, 1) >= new Date(todayYear, todayMonth, 1)
+    );
+    monthBills.forEach(b => {
+      events.push({label:m.label, desc:b.desc, amount:-b.amount, balAfter: bal - b.amount});
+      bal -= b.amount;
+    });
+    data.push({label:m.label, balance:Math.round(bal*100)/100, year:m.year, month:m.month});
+  });
+
+  return {data, events};
+}
+
+// Build months from today to a target year/month
+function monthsUntil(endYear, endMonth) {
+  const months = [];
+  let y = todayYear, m = todayMonth;
+  while (y < endYear || (y === endYear && m <= endMonth)) {
+    months.push({year:y, month:m, label:monthLabel(y,m)});
+    m++; if(m>11){m=0;y++;}
+  }
+  return months;
+}
+
+// Milestone analysis for kids bucket
+function kidsMillestones(startBal, monthlyContrib, bills) {
+  const allMonths = monthsUntil(2038, 0);
+  const sim = simulateBucket(startBal, monthlyContrib, bills, allMonths);
+
+  // Total future costs
+  const totalCosts = bills.reduce((s,b)=>s+b.amount, 0);
+
+  // Self-funding crossover: month where cumulative contributions >= total future costs
+  let cumContribs = startBal;
+  let selfFundMonth = null;
+  allMonths.forEach((m, idx) => {
+    if (idx > 0) cumContribs += monthlyContrib;
+    if (!selfFundMonth && cumContribs >= totalCosts) selfFundMonth = m;
+  });
+
+  // Min balance (worst dip)
+  const minBal = Math.min(...sim.data.map(d=>d.balance));
+  const minMonth = sim.data.find(d=>d.balance===minBal);
+
+  // Miss 12 college ready: balance at Jan 2027 before bills
+  const miss12ReadyIdx = sim.data.findIndex(d=>d.year===2027&&d.month===0);
+  const miss12Ready = miss12ReadyIdx>=0 ? sim.data[Math.max(0,miss12ReadyIdx-1)]?.balance : null;
+
+  // Miss 6 college ready: balance at Jan 2033 before bills
+  const miss6ReadyIdx = sim.data.findIndex(d=>d.year===2033&&d.month===0);
+  const miss6Ready = miss6ReadyIdx>=0 ? sim.data[Math.max(0,miss6ReadyIdx-1)]?.balance : null;
+
+  return {sim, totalCosts, selfFundMonth, minBal, minMonth, miss12Ready, miss6Ready};
+}
+
+// ── Chart ─────────────────────────────────────────────────────────────────────
+const combinedChart = new Chart(document.getElementById('combinedChart').getContext('2d'), {
+  type:'line',
+  data:{datasets:[
+    {label:'Rates',     data:[],borderColor:'#7da7d9',backgroundColor:'rgba(125,167,217,0.06)',borderWidth:2,fill:false,tension:0.2,pointRadius:3,pointBackgroundColor:'#7da7d9'},
+    {label:'Insurance', data:[],borderColor:'#f0a05a',backgroundColor:'rgba(240,160,90,0.06)', borderWidth:2,fill:false,tension:0.2,pointRadius:3,pointBackgroundColor:'#f0a05a'},
+    {label:'Kids',      data:[],borderColor:'#b48ef0',backgroundColor:'rgba(180,142,240,0.06)',borderWidth:2,fill:false,tension:0.2,pointRadius:3,pointBackgroundColor:'#b48ef0'},
+    {label:'$0 line',   data:[],borderColor:'rgba(224,92,106,0.3)',borderWidth:1,borderDash:[4,3],fill:false,pointRadius:0},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{labels:{color:'#6e7d8e',font:{family:'DM Mono',size:10},boxWidth:10,padding:12}},
+      tooltip:{backgroundColor:'#1c2330',borderColor:'#2a3441',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#6e7d8e',
+        titleFont:{family:'DM Mono',size:10},bodyFont:{family:'DM Mono',size:10},
+        callbacks:{label:item=>` ${item.dataset.label}: ${fmt(item.parsed.y)}`}}
+    },
+    scales:{
+      x:{ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:9},maxRotation:45},grid:{color:'#1c2330'},border:{color:'#2a3441'}},
+      y:{ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:10},callback:v=>'$'+(v/1000).toFixed(1)+'k'},grid:{color:'rgba(42,52,65,0.4)'},border:{color:'#2a3441'}}
+    }
+  }
+});
+
+// ── Sufficiency analysis ──────────────────────────────────────────────────────
+function analyseBucket(simData, bills, monthlyContrib, startBal) {
+  const minBal = Math.min(...simData.data.map(d=>d.balance));
+  const totalBills = bills.reduce((s,b)=>s+b.amount,0);
+  const totalContribs = monthlyContrib * 12;
+  const surplus = totalContribs - totalBills;
+
+  // Next bill
+  const futureBills = bills
+    .map(b=>({...b, date:new Date(b.year,b.month,1)}))
+    .filter(b=>b.date>=today)
+    .sort((a,b)=>a.date-b.date);
+  const nextBill = futureBills[0]||null;
+
+  // Balance at time of next bill
+  let balAtNextBill = startBal;
+  if (nextBill) {
+    const monthsAway = (nextBill.year-todayYear)*12+(nextBill.month-todayMonth);
+    balAtNextBill = startBal + monthlyContrib*monthsAway;
+    // subtract any bills before next bill
+    bills.forEach(b=>{
+      const mo=(b.year-todayYear)*12+(b.month-todayMonth);
+      if(mo>=0&&mo<monthsAway) balAtNextBill-=b.amount;
+    });
+  }
+
+  const status = minBal < 0 ? 'warn' : minBal < 200 ? 'tight' : 'ok';
+  const statusText = minBal < 0 ? '⚠ Goes negative' : minBal < 200 ? '↗ Tight' : '✓ On track';
+
+  return {minBal, totalBills, surplus, nextBill, balAtNextBill, status, statusText};
+}
+
+// ── Kids long-range chart ────────────────────────────────────────────────────
+const kidsLongChart = new Chart(document.getElementById('kidsLongChart').getContext('2d'), {
+  type:'line',
+  data:{datasets:[
+    {label:'Balance',      data:[],borderColor:'#b48ef0',backgroundColor:'rgba(180,142,240,0.08)',borderWidth:2,fill:true,tension:0.2,pointRadius:0},
+    {label:'Contributions',data:[],borderColor:'rgba(88,196,160,0.4)',borderWidth:1,borderDash:[3,3],fill:false,tension:0,pointRadius:0},
+    {label:'$0',           data:[],borderColor:'rgba(224,92,106,0.3)',borderWidth:1,borderDash:[4,3],fill:false,pointRadius:0},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{labels:{color:'#6e7d8e',font:{family:'DM Mono',size:9},boxWidth:8,padding:8}},
+      tooltip:{backgroundColor:'#1c2330',borderColor:'#2a3441',borderWidth:1,
+        titleFont:{family:'DM Mono',size:9},bodyFont:{family:'DM Mono',size:9},
+        callbacks:{title:items=>items[0].label, label:item=>` ${item.dataset.label}: ${fmt(item.parsed.y)}`}},
+      annotation:{annotations:{}}
+    },
+    scales:{
+      x:{ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:9},maxTicksLimit:12,maxRotation:45},grid:{color:'#1c2330'},border:{color:'#2a3441'}},
+      y:{ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:9},callback:v=>'$'+(v/1000).toFixed(1)+'k'},grid:{color:'rgba(42,52,65,0.4)'},border:{color:'#2a3441'}}
+    }
+  }
+});
+
+// ── Main update ───────────────────────────────────────────────────────────────
+function update() {
+  const ratesBal    = parseInt(document.getElementById('ratesBal').value);
+  const ratesContrib= parseInt(document.getElementById('ratesContrib').value);
+  const insBal      = parseInt(document.getElementById('insBal').value);
+  const insContrib  = parseInt(document.getElementById('insContrib').value);
+  const kidsBal     = parseInt(document.getElementById('kidsBal').value);
+  const kidsContrib = parseInt(document.getElementById('kidsContrib').value);
+
+  // Labels
+  document.getElementById('ratesBalLabel').textContent   = fmt(ratesBal);
+  document.getElementById('ratesContribLabel').textContent= fmt(ratesContrib)+'/mo';
+  document.getElementById('insBalLabel').textContent     = fmt(insBal);
+  document.getElementById('insContribLabel').textContent = fmt(insContrib)+'/mo';
+  document.getElementById('kidsBalLabel').textContent    = fmt(kidsBal);
+  document.getElementById('kidsContribLabel').textContent= fmt(kidsContrib)+'/mo';
+
+  // Simulate
+  const ratesSim = simulateBucket(ratesBal, ratesContrib, ratesBills);
+  const insSim   = simulateBucket(insBal,   insContrib,   insuranceBills);
+  const kidsSim  = simulateBucket(kidsBal,  kidsContrib,  kidsBills);
+
+  // Analysis
+  const ratesA = analyseBucket(ratesSim, ratesBills, ratesContrib, ratesBal);
+  const insA   = analyseBucket(insSim,   insuranceBills, insContrib, insBal);
+  const kidsA  = analyseBucket(kidsSim,  kidsBills,  kidsContrib, kidsBal);
+
+  // Summary panel
+  document.getElementById('sumRates').textContent = fmt(ratesContrib)+'/mo';
+  document.getElementById('sumIns').textContent   = fmt(insContrib)+'/mo';
+  document.getElementById('sumKids').textContent  = fmt(kidsContrib)+'/mo';
+  document.getElementById('sumTotal').textContent = fmt(ratesContrib+insContrib+kidsContrib)+'/mo';
+  // Only count bills due in the next 12 months for the summary
+  const next12 = next12Months();
+  const next12Keys = new Set(next12.map(m=>m.year+'-'+m.month));
+  function billsNext12(bills){ return bills.filter(b=>next12Keys.has(b.year+'-'+b.month)).reduce((s,b)=>s+b.amount,0); }
+  const annualBillsNext12 = billsNext12(ratesBills) + billsNext12(insuranceBills) + billsNext12(kidsBills);
+  document.getElementById('sumAnnual').textContent= fmt(annualBillsNext12)+' next 12 months';
+
+  // Chart
+  const labels = ratesSim.data.map(d=>d.label);
+  combinedChart.data.labels = labels;
+  combinedChart.data.datasets[0].data = ratesSim.data.map(d=>d.balance);
+  combinedChart.data.datasets[1].data = insSim.data.map(d=>d.balance);
+  combinedChart.data.datasets[2].data = kidsSim.data.map(d=>d.balance);
+  combinedChart.data.datasets[3].data = labels.map(()=>0);
+  combinedChart.update('none');
+
+  // ── Rates card ──
+  const ratesStatus = document.getElementById('ratesStatus');
+  ratesStatus.textContent = ratesA.statusText;
+  ratesStatus.className   = `bucket-status ${ratesA.status}`;
+  document.getElementById('ratesBalNow').textContent    = fmt(ratesBal);
+  document.getElementById('ratesNextBill').textContent  = ratesA.nextBill ? fmt(ratesA.nextBill.amount) : '—';
+  document.getElementById('ratesAfterBill').textContent = ratesA.nextBill ? fmt(ratesA.balAtNextBill - ratesA.nextBill.amount) : '—';
+  document.getElementById('ratesAfterBill').style.color = ratesA.balAtNextBill - (ratesA.nextBill?.amount||0) < 0 ? 'var(--danger)' : 'var(--accent)';
+  const ratesMax = Math.max(ratesBal, ...ratesSim.data.map(d=>d.balance), 1);
+  document.getElementById('ratesBar').style.width = Math.max(0,Math.min(100, ratesBal/ratesMax*100))+'%';
+
+  // Rates events table
+  const allRatesEvents = [];
+  const months12 = next12Months();
+  let rbal = ratesBal;
+  months12.forEach((m,idx)=>{
+    if(idx>0){rbal+=ratesContrib; allRatesEvents.push({label:m.label,desc:'Contribution',amount:ratesContrib,bal:rbal,type:'credit'});}
+    ratesBills.filter(b=>b.month===m.month&&b.year===m.year).forEach(b=>{
+      rbal-=b.amount; allRatesEvents.push({label:m.label,desc:b.desc,amount:-b.amount,bal:rbal,type:'debit'});
+    });
+  });
+  document.getElementById('ratesEvents').innerHTML = allRatesEvents.slice(0,40)
+    .map(e=>`<div class="event-row">
+      <span class="event-date">${e.label}</span>
+      <span class="event-desc">${e.desc}</span>
+      <span class="event-amount ${e.type}">${e.type==='debit'?'−':'+'}&nbsp;${fmtShort(e.amount)}</span>
+      <span class="event-balance ${e.bal<0?'neg':''}">${fmt(e.bal)}</span>
+    </div>`).join('');
+
+  // Rates sufficiency
+  const rSuf = document.getElementById('ratesSufficiency');
+  rSuf.className = `sufficiency-box ${ratesA.status}`;
+  rSuf.innerHTML = ratesA.status==='ok'
+    ? `Annual bills <strong style="color:var(--rates)">${fmt(ratesA.totalBills)}</strong> · contributions <strong style="color:var(--accent)">${fmt(ratesContrib*12)}</strong> · surplus ${fmt(ratesA.surplus)}/yr. Lowest balance ${fmt(ratesA.minBal)}.`
+    : ratesA.status==='tight'
+    ? `Lowest balance is only ${fmt(ratesA.minBal)} — consider increasing contribution slightly.`
+    : `⚠ Balance goes negative by ${fmt(ratesA.minBal)}. Increase contribution by at least ${fmt(Math.ceil(-ratesA.minBal/12))}/mo or reduce bills.`;
+
+  // ── Insurance card ──
+  const insStatus = document.getElementById('insStatus');
+  insStatus.textContent = insA.statusText;
+  insStatus.className   = `bucket-status ${insA.status}`;
+  document.getElementById('insBalNow').textContent    = fmt(insBal);
+  document.getElementById('insNextBill').textContent  = insA.nextBill ? fmt(insA.nextBill.amount) : '—';
+  document.getElementById('insAfterBill').textContent = insA.nextBill ? fmt(insA.balAtNextBill - insA.nextBill.amount) : '—';
+  document.getElementById('insAfterBill').style.color = insA.balAtNextBill - (insA.nextBill?.amount||0) < 0 ? 'var(--danger)' : 'var(--accent)';
+  const insMax = Math.max(insBal, ...insSim.data.map(d=>d.balance), 1);
+  document.getElementById('insBar').style.width = Math.max(0,Math.min(100, insBal/insMax*100))+'%';
+
+  const allInsEvents = [];
+  let ibal = insBal;
+  months12.forEach((m,idx)=>{
+    if(idx>0){ibal+=insContrib; allInsEvents.push({label:m.label,desc:'Contribution',amount:insContrib,bal:ibal,type:'credit'});}
+    insuranceBills.filter(b=>b.month===m.month&&b.year===m.year).forEach(b=>{
+      ibal-=b.amount; allInsEvents.push({label:m.label,desc:b.desc,amount:-b.amount,bal:ibal,type:'debit'});
+    });
+  });
+  document.getElementById('insEvents').innerHTML = allInsEvents
+    .map(e=>`<div class="event-row">
+      <span class="event-date">${e.label}</span>
+      <span class="event-desc">${e.desc}</span>
+      <span class="event-amount ${e.type}">${e.type==='debit'?'−':'+'}&nbsp;${fmtShort(e.amount)}</span>
+      <span class="event-balance ${e.bal<0?'neg':''}">${fmt(e.bal)}</span>
+    </div>`).join('');
+
+  const iSuf = document.getElementById('insSufficiency');
+  iSuf.className = `sufficiency-box ${insA.status}`;
+  iSuf.innerHTML = insA.status==='ok'
+    ? `Annual premium <strong style="color:var(--insurance)">${fmt(insA.totalBills)}</strong> · contributions <strong style="color:var(--accent)">${fmt(insContrib*12)}</strong> · surplus ${fmt(insA.surplus)}/yr.`
+    : insA.status==='tight'
+    ? `Tight — only ${fmt(insA.minBal)} remaining after premium. Consider a small buffer increase.`
+    : `⚠ Insufficient — short by ${fmt(-insA.minBal)}. Increase contribution to at least ${fmt(Math.ceil(insA.totalBills/12))}/mo.`;
+
+  // ── Kids card ──
+  const kidsStatus = document.getElementById('kidsStatus');
+  kidsStatus.textContent = kidsA.statusText;
+  kidsStatus.className   = `bucket-status ${kidsA.status}`;
+  const kidsAnnualSpend = kidsBills.reduce((s,b)=>s+b.amount,0);
+  document.getElementById('kidsBalNow').textContent       = fmt(kidsBal);
+  document.getElementById('kidsAnnualSpend').textContent  = fmt(kidsAnnualSpend);
+  const kidsYearEndEntry = kidsSim.data.find(d=>d.year===todayYear&&d.month===11) || kidsSim.data[kidsSim.data.length-1];
+  const kidsYearEnd = kidsYearEndEntry?.balance||0;
+  document.getElementById('kidsYearEnd').textContent = fmt(kidsYearEnd);
+  document.getElementById('kidsYearEnd').style.color = kidsYearEnd>=0?'var(--accent)':'var(--danger)';
+  const kidsMax = Math.max(kidsBal, ...kidsSim.data.map(d=>d.balance), 1);
+  document.getElementById('kidsBar').style.width = Math.max(0,Math.min(100, kidsBal/kidsMax*100))+'%';
+
+  const allKidsEvents = [];
+  let kbal = kidsBal;
+  months12.forEach((m,idx)=>{
+    if(idx>0){kbal+=kidsContrib; allKidsEvents.push({label:m.label,desc:'Contribution',amount:kidsContrib,bal:kbal,type:'credit'});}
+    kidsBills.filter(b=>b.month===m.month&&b.year===m.year).forEach(b=>{
+      kbal-=b.amount; allKidsEvents.push({label:m.label,desc:b.desc,amount:-b.amount,bal:kbal,type:'debit'});
+    });
+  });
+  document.getElementById('kidsEvents').innerHTML = allKidsEvents
+    .map(e=>`<div class="event-row">
+      <span class="event-date">${e.label}</span>
+      <span class="event-desc">${e.desc}</span>
+      <span class="event-amount ${e.type}">${e.type==='debit'?'−':'+'}&nbsp;${fmtShort(e.amount)}</span>
+      <span class="event-balance ${e.bal<0?'neg':''}">${fmt(e.bal)}</span>
+    </div>`).join('');
+
+  const kSuf = document.getElementById('kidsSufficiency');
+  kSuf.className = `sufficiency-box ${kidsA.status}`;
+  // ── Kids long-range milestone chart ──
+  const km = kidsMillestones(kidsBal, kidsContrib, kidsBills);
+  const longLabels = km.sim.data.map(d=>d.label);
+  let cumC = kidsBal;
+  const cumData = km.sim.data.map((d,i)=>{ if(i>0) cumC+=kidsContrib; return Math.round(cumC); });
+
+  kidsLongChart.data.labels = longLabels;
+  kidsLongChart.data.datasets[0].data = km.sim.data.map(d=>d.balance);
+  kidsLongChart.data.datasets[1].data = cumData;
+  kidsLongChart.data.datasets[2].data = longLabels.map(()=>0);
+  kidsLongChart.update('none');
+
+  // Milestone cards
+  const miss12CostTotal = kidsBills.filter(b=>b.desc.includes('Miss 12')&&new Date(b.year,b.month,1)>=new Date(todayYear,todayMonth,1)).reduce((s,b)=>s+b.amount,0);
+  const miss6CostTotal  = kidsBills.filter(b=>b.desc.includes('Miss 6')&&new Date(b.year,b.month,1)>=new Date(todayYear,todayMonth,1)).reduce((s,b)=>s+b.amount,0);
+  const selfFundLabel   = km.selfFundMonth ? `${km.selfFundMonth.label}` : 'Beyond projection';
+  const miss12Ready     = km.miss12Ready !== null ? (km.miss12Ready >= 1000 ? '✓' : '⚠') : '?';
+  const miss6Ready      = km.miss6Ready  !== null ? (km.miss6Ready  >= 1000 ? '✓' : '⚠') : '?';
+
+  document.getElementById('kidsMilestones').innerHTML = `
+    <div style="background:rgba(180,142,240,0.07);border:1px solid rgba(180,142,240,0.2);border-radius:7px;padding:10px;text-align:center">
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px">Miss 12 — College ready</div>
+      <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--kids)">${miss12Ready} Jan 2027</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:3px">Balance before startup: ${km.miss12Ready!==null?fmt(km.miss12Ready):'—'}</div>
+      <div style="font-size:9px;color:var(--muted)">Total cost: ${fmt(miss12CostTotal)}</div>
+    </div>
+    <div style="background:rgba(180,142,240,0.07);border:1px solid rgba(180,142,240,0.2);border-radius:7px;padding:10px;text-align:center">
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px">Miss 6 — College ready</div>
+      <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--kids)">${miss6Ready} Jan 2033</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:3px">Balance before startup: ${km.miss6Ready!==null?fmt(km.miss6Ready):'—'}</div>
+      <div style="font-size:9px;color:var(--muted)">Total cost: ${fmt(miss6CostTotal)}</div>
+    </div>
+    <div style="background:rgba(88,196,160,0.07);border:1px solid rgba(88,196,160,0.2);border-radius:7px;padding:10px;text-align:center">
+      <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px">Self-funding crossover</div>
+      <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--accent)">${selfFundLabel}</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:3px">Contributions cover all future costs</div>
+      <div style="font-size:9px;color:var(--muted)">Total costs: ${fmt(km.totalCosts)}</div>
+    </div>`;
+
+  // Use full-horizon analysis for kids sufficiency message
+  const kidsHorizonMonths = (2037 - todayYear) * 12 + (1 - todayMonth);
+  const kidsTotalContribs = kidsBal + kidsContrib * kidsHorizonMonths;
+  const kidsTotalCosts    = kidsBills.filter(b=>new Date(b.year,b.month,1)>=new Date(todayYear,todayMonth,1)).reduce((s,b)=>s+b.amount,0);
+  const kidsHorizonSurplus = kidsTotalContribs - kidsTotalCosts;
+  const kidsLowest = km.minBal;
+
+  kSuf.className = kidsLowest < 0 ? 'sufficiency-box warn' : kidsLowest < 500 ? 'sufficiency-box tight' : 'sufficiency-box ok';
+  kSuf.innerHTML = kidsLowest >= 0
+    ? `Full horizon (2026–2037): total costs <strong style="color:var(--kids)">${fmt(kidsTotalCosts)}</strong> · total contributions <strong style="color:var(--accent)">${fmt(Math.round(kidsTotalContribs))}</strong> · surplus ${fmt(kidsHorizonSurplus)}. Lowest balance ${fmt(kidsLowest)}.`
+    : `⚠ Balance goes negative (${fmt(kidsLowest)}) at some point. Increase monthly contribution or check bill amounts. Total costs: ${fmt(kidsTotalCosts)}.`;
+
+  // Subtitle
+  document.getElementById('pageSubtitle').textContent =
+    `Sinking funds — from ${monthLabel(todayYear,todayMonth)}`;
+
+  // Save state
+  saveSuite({budgets:{
+    ratesBal, ratesContrib, insBal, insContrib, kidsBal, kidsContrib,
+    ratesBills, insuranceBills, kidsBills
+  }});
+  document.getElementById('syncBadge').textContent='● synced';
+}
+
+// ── Toggle event list ────────────────────────────────────────────────────────
+function toggleEvents(bucket) {
+  const wrap = document.getElementById(bucket+'EventsWrap');
+  const btn  = document.getElementById(bucket+'ToggleBtn');
+  const open = wrap.style.display === 'none';
+  wrap.style.display = open ? 'block' : 'none';
+  btn.textContent    = open ? 'hide ▲' : 'show ▼';
+  btn.style.color    = open ? 'var(--accent)' : 'var(--muted)';
+}
+
+// ── Per-bucket reset ─────────────────────────────────────────────────────────
+const DEFAULT_RATES_BILLS = [
+  {month:7, year:2026, amount:1318.43, desc:'Q1 Rates & Water'},
+  {month:10,year:2026, amount:1318.43, desc:'Q2 Rates & Water'},
+  {month:1, year:2027, amount:1318.43, desc:'Q3 Rates & Water'},
+  {month:4, year:2027, amount:1318.43, desc:'Q4 Rates & Water'},
+];
+const DEFAULT_INS_BILLS = [
+  {month:8, year:2026, amount:2500, desc:'Home insurance'},
+  {month:8, year:2026, amount:0,    desc:'Vehicle insurance'},
+  {month:8, year:2026, amount:0,    desc:'Contents insurance'},
+];
+const DEFAULT_KIDS_BILLS = [
+  {month:0, year:2027, amount:1000, desc:'Miss 12 — College uniform & shoes'},
+  {month:1, year:2027, amount:500,  desc:'Miss 12 — College fee Y9'},
+  {month:1, year:2028, amount:500,  desc:'Miss 12 — College fee Y10'},
+  {month:1, year:2029, amount:500,  desc:'Miss 12 — College fee Y11'},
+  {month:1, year:2030, amount:500,  desc:'Miss 12 — College fee Y12'},
+  {month:1, year:2031, amount:500,  desc:'Miss 12 — College fee Y13'},
+  {month:1, year:2027, amount:900,  desc:'Miss 6 — Primary fee Y3'},
+  {month:1, year:2028, amount:900,  desc:'Miss 6 — Primary fee Y4'},
+  {month:1, year:2029, amount:900,  desc:'Miss 6 — Primary fee Y5'},
+  {month:1, year:2030, amount:900,  desc:'Miss 6 — Primary fee Y6'},
+  {month:1, year:2031, amount:900,  desc:'Miss 6 — Primary fee Y7'},
+  {month:1, year:2032, amount:900,  desc:'Miss 6 — Primary fee Y8'},
+  {month:0, year:2033, amount:1000, desc:'Miss 6 — College uniform & shoes'},
+  {month:1, year:2033, amount:500,  desc:'Miss 6 — College fee Y9'},
+  {month:1, year:2034, amount:500,  desc:'Miss 6 — College fee Y10'},
+  {month:1, year:2035, amount:500,  desc:'Miss 6 — College fee Y11'},
+  {month:1, year:2036, amount:500,  desc:'Miss 6 — College fee Y12'},
+  {month:1, year:2037, amount:500,  desc:'Miss 6 — College fee Y13'},
+];
+
+function resetBucket(bucket) {
+  if (!confirm(`Reset ${bucket} bills to defaults?`)) return;
+  if (bucket==='rates') ratesBills = DEFAULT_RATES_BILLS.map(b=>({...b}));
+  if (bucket==='ins')   insuranceBills = DEFAULT_INS_BILLS.map(b=>({...b}));
+  if (bucket==='kids')  kidsBills = DEFAULT_KIDS_BILLS.map(b=>({...b}));
+  renderAllBillLists();
+  update();
+}
+
+// ── Toggle left panel body ───────────────────────────────────────────────────
+function togglePanel(bucket) {
+  const body    = document.getElementById(bucket+'PanelBody');
+  const chevron = document.getElementById(bucket+'PanelChevron');
+  const open    = body.style.display !== 'none';
+  body.style.display    = open ? 'none' : 'block';
+  chevron.style.transform = open ? 'rotate(180deg)' : '';
+  chevron.style.color     = open ? 'var(--muted)' : 'var(--accent)';
+}
+
+// ── Load state ────────────────────────────────────────────────────────────────
+function loadState() {
+  const s = loadSuite();
+  const b = s.budgets;
+  if (!b) return;
+  const set=(id,val)=>{const el=document.getElementById(id);if(el&&val!=null)el.value=val;};
+  set('ratesBal',b.ratesBal); set('ratesContrib',b.ratesContrib);
+  set('insBal',b.insBal);     set('insContrib',b.insContrib);
+  set('kidsBal',b.kidsBal);   set('kidsContrib',b.kidsContrib);
+  if(b.ratesBills&&b.ratesBills.length)     ratesBills     = b.ratesBills;
+  if(b.insuranceBills&&b.insuranceBills.length) insuranceBills = b.insuranceBills;
+  if(b.kidsBills&&b.kidsBills.length)       kidsBills      = b.kidsBills;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadState();
+renderAllBillLists();
+['ratesBal','ratesContrib','insBal','insContrib','kidsBal','kidsContrib']
+  .forEach(id=>document.getElementById(id).addEventListener('input',update));
+update();
+</script>
+</body>
+</html>

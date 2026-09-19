@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KiwiSaver & Wealth — Alister Way Suite</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap');
+:root {
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2330;
+  --border:#2a3441;--accent:#58c4a0;--accent2:#f0a05a;
+  --accent3:#7da7d9;--danger:#e05c6a;--text:#e2e8f0;--muted:#6e7d8e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;min-height:100vh;padding:20px}
+.suite-nav{display:flex;gap:6px;margin-bottom:20px;align-items:center}
+.suite-nav a{padding:5px 14px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;text-decoration:none;border:1px solid var(--border);color:var(--muted);transition:all 0.15s}
+.suite-nav a.active{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:500}
+.suite-nav a:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+.suite-title{font-family:'Fraunces',serif;font-weight:300;font-size:11px;color:var(--muted);margin-right:8px;letter-spacing:0.06em}
+h1{font-family:'Fraunces',serif;font-weight:300;font-size:24px;color:var(--accent3);margin-bottom:2px}
+.subtitle{color:var(--muted);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:14px;max-width:1160px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.panel:last-child{margin-bottom:0}
+.panel-title{font-family:'Fraunces',serif;font-weight:600;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.control-group{margin-bottom:12px}.control-group:last-child{margin-bottom:0}
+.control-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.06em}
+.control-value{font-size:13px;color:var(--text);font-weight:500}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent3);cursor:pointer;border:2px solid var(--bg);box-shadow:0 0 8px rgba(125,167,217,0.4)}
+.slider-bounds{display:none}
+input[type=number]{background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:5px 8px;outline:none;width:100%;transition:border-color 0.15s;-moz-appearance:textfield}
+input[type=number]:focus{border-color:var(--accent3)}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
+.toggle-label span{display:block;font-size:11px;color:var(--text);text-transform:none;letter-spacing:0;margin-top:1px}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle input{display:none}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:10px;cursor:pointer;transition:background 0.2s}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:var(--muted);top:3px;left:3px;transition:transform 0.2s,background 0.2s}
+.toggle input:checked+.toggle-slider{background:rgba(125,167,217,0.2)}
+.toggle input:checked+.toggle-slider::before{background:var(--accent3);transform:translateX(16px)}
+.results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:10px}
+.results-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.result-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px;text-align:center}
+.result-card .label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+.result-card .value{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--accent3);line-height:1}
+.result-card .sub{font-size:9px;color:var(--muted);margin-top:2px}
+.chart-area{position:relative;height:230px}
+.chart-area-lg{position:relative;height:260px}
+canvas{width:100%!important;height:100%!important}
+.bal-table{width:100%;border-collapse:collapse;font-size:11px}
+.bal-table th{color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:0.07em;font-weight:400;padding:0 5px 6px;text-align:right;border-bottom:1px solid var(--border)}
+.bal-table th:first-child{text-align:left}
+.bal-table td{padding:4px 5px;text-align:right;border-bottom:1px solid rgba(42,52,65,0.4);color:var(--text)}
+.bal-table td:first-child{text-align:left;color:var(--muted);font-size:10px}
+.bal-table tr:last-child td{border-bottom:none}
+.bal-table tr.crossover-yr td{color:var(--accent);font-weight:500}
+.sync-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:4px;background:rgba(88,196,160,0.1);border:1px solid rgba(88,196,160,0.25);font-size:9px;color:var(--accent);margin-left:auto}
+.import-notice{background:rgba(125,167,217,0.07);border:1px solid rgba(125,167,217,0.2);border-radius:6px;padding:8px 11px;font-size:10px;color:var(--muted);margin-bottom:10px;display:none}
+.import-notice strong{color:var(--accent3)}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
+.field input{background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:5px 7px;outline:none;width:100%;transition:border-color 0.15s}
+.field input:focus{border-color:var(--accent3)}
+.section-divider{height:1px;background:var(--border);margin:14px 0}
+</style>
+</head>
+<body>
+<nav class="suite-nav">
+  <span class="suite-title">Alister Way</span>
+  <a href="01-mortgage.html">① Mortgage</a>
+  <a href="04-budgets.html">② Budgets</a>
+  <a href="02-kiwisaver.html" class="active">③ KiwiSaver & Wealth</a>
+  <a href="03-insurance.html">④ Insurance</a>
+  <a href="05-action-plan.html">⑤ Action Plan</a>
+  <span class="sync-badge" id="syncBadge">● synced</span>
+  <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+    <button onclick="exportSuite()" style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬇ Export</button>
+    <label style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Import<input type="file" accept=".json" onchange="importSuite(event)" style="display:none"></label>
+  </div>
+</nav>
+<h1>KiwiSaver &amp; Net Wealth</h1>
+<p class="subtitle">Accumulation to 65 — then retirement drawdown projection</p>
+
+<div class="layout">
+  <!-- LEFT -->
+  <div>
+    <div class="import-notice" id="importNotice">
+      <strong>← Mortgage data loaded</strong> — net debt by year imported from Tool 1. Adjust mortgage inputs there to update automatically.
+    </div>
+
+    <div class="panel">
+      <div class="panel-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>KiwiSaver Inputs</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Your age</span>
+          <input type="number" id="ageInput" value="43" min="18" max="64" step="1"
+            style="width:52px;background:var(--bg);border:1px solid var(--accent3);border-radius:5px;color:var(--accent3);font-family:'DM Mono',monospace;font-size:13px;font-weight:500;padding:3px 6px;outline:none;text-align:center"
+            oninput="update()">
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Current balance</span><span class="control-value" id="ksBalLabel">$159,000</span></div>
+        <input type="number" id="ksBal" min="0" max="9999999" step="1000" value="159000" oninput="update()" placeholder="$">
+        <div class="slider-bounds"><span>$0</span><span>$500k</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Your contribution</span><span class="control-value" id="ksEmpLabel">3.5%</span></div>
+        <input type="number" id="ksEmp" min="0" max="100" step="0.5" value="3.5" oninput="update()" placeholder="%">
+        <div class="slider-bounds"><span>0% none</span><span>10%</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Employer contribution</span><span class="control-value" id="ksEmpRateLabel">5%</span></div>
+        <input type="number" id="ksEmpRate" min="0" max="100" step="0.5" value="5" oninput="update()" placeholder="%">
+        <div class="slider-bounds"><span>0% none / self-employed</span><span>10%</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Salary</span><span class="control-value" id="ksSalLabel">$120,000</span></div>
+        <input type="number" id="ksSal" min="0" max="9999999" step="1000" value="120000" oninput="update()" placeholder="$">
+        <div class="slider-bounds"><span>$0 no income</span><span>$300k</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Expected annual return</span><span class="control-value" id="ksReturnLabel">7.5%</span></div>
+        <input type="number" id="ksReturn" min="0" max="100" step="0.5" value="7.5" oninput="update()" placeholder="%">
+        <div class="slider-bounds"><span>3% conservative</span><span>20%</span></div>
+      </div>
+      <div class="toggle-row" style="margin-top:6px;border-bottom:none">
+        <div class="toggle-label">Inflation adjusted<span>Subtracts 2.5%/yr — real purchasing power</span></div>
+        <label class="toggle"><input type="checkbox" id="ksInflation"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Career Phase-Down</span>
+        <label class="toggle" style="margin-left:auto"><input type="checkbox" id="careerToggle" onchange="update()"><span class="toggle-slider"></span></label>
+      </div>
+      <p style="font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:10px">Model income changes across career phases. Each phase uses a different salary and contribution rate in the KiwiSaver simulation.</p>
+      <div id="careerControls" style="display:none">
+        <!-- Phase 1: Peak -->
+        <div style="border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;background:rgba(125,167,217,0.04)">
+          <div style="font-size:9px;color:var(--accent3);text-transform:uppercase;letter-spacing:0.08em;font-weight:500;margin-bottom:8px">① Peak — now until pivot</div>
+          <div class="control-group" style="margin-bottom:8px">
+            <div class="control-label"><span>Pivot age</span><span class="control-value" id="phase1AgeLabel">52</span></div>
+            <input type="number" id="phase1Age" min="43" max="75" step="1" value="52" oninput="update()" placeholder="age">
+            <div class="slider-bounds"><span>45</span><span>62</span></div>
+          </div>
+          <div style="font-size:10px;color:var(--muted)">Salary from KiwiSaver inputs above — <span id="phase1SalDisplay" style="color:var(--accent3)">$120,000</span></div>
+        </div>
+        <!-- Phase 2: Transition -->
+        <div style="border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;background:rgba(240,160,90,0.04)">
+          <div style="font-size:9px;color:var(--accent2);text-transform:uppercase;letter-spacing:0.08em;font-weight:500;margin-bottom:8px">② Transition — consulting / part-time</div>
+          <div class="control-group" style="margin-bottom:8px">
+            <div class="control-label"><span>Income % of peak</span><span class="control-value" id="phase2PctLabel">65%</span></div>
+            <input type="number" id="phase2Pct" min="0" max="100" step="5" value="65" oninput="update()" placeholder="%">
+            <div class="slider-bounds"><span>20% minimal</span><span>100% same</span></div>
+          </div>
+          <div class="control-group" style="margin-bottom:8px">
+            <div class="control-label"><span>KiwiSaver during this phase</span><span class="control-value" id="phase2KsLabel">3%</span></div>
+            <input type="number" id="phase2Ks" min="0" max="100" step="0.5" value="3" oninput="update()" placeholder="%">
+            <div class="slider-bounds"><span>0% (self-employed)</span><span>10%</span></div>
+          </div>
+          <div style="font-size:10px;color:var(--muted)">Ends when semi-retired — <span id="phase2SalDisplay" style="color:var(--accent2)">$78,000</span>/yr</div>
+        </div>
+        <!-- Phase 3: Semi-retired -->
+        <div style="border:1px solid var(--border);border-radius:7px;padding:10px;margin-bottom:8px;background:rgba(88,196,160,0.04)">
+          <div style="font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;font-weight:500;margin-bottom:8px">③ Semi-retired — advisory / governance</div>
+          <div class="control-group" style="margin-bottom:8px">
+            <div class="control-label"><span>Semi-retire age</span><span class="control-value" id="phase3AgeLabel">60</span></div>
+            <input type="number" id="phase3Age" min="43" max="75" step="1" value="60" oninput="update()" placeholder="age">
+            <div class="slider-bounds"><span>50</span><span>64</span></div>
+          </div>
+          <div class="control-group" style="margin-bottom:8px">
+            <div class="control-label"><span>Income % of peak</span><span class="control-value" id="phase3PctLabel">30%</span></div>
+            <input type="number" id="phase3Pct" min="0" max="100" step="5" value="30" oninput="update()" placeholder="%">
+            <div class="slider-bounds"><span>0% stopped</span><span>80%</span></div>
+          </div>
+          <div class="control-group" style="margin-bottom:0">
+            <div class="control-label"><span>KiwiSaver during this phase</span><span class="control-value" id="phase3KsLabel">3%</span></div>
+            <input type="number" id="phase3Ks" min="0" max="100" step="0.5" value="3" oninput="update()" placeholder="%">
+            <div class="slider-bounds"><span>0% none</span><span>10%</span></div>
+          </div>
+          <div style="font-size:10px;color:var(--muted);margin-top:8px">Until 65 — <span id="phase3SalDisplay" style="color:var(--accent)">$36,000</span>/yr</div>
+        </div>
+        <!-- Impact summary -->
+        <div style="background:rgba(224,92,106,0.06);border:1px solid rgba(224,92,106,0.2);border-radius:6px;padding:9px;font-size:10px;line-height:1.8">
+          <div style="color:var(--muted);text-transform:uppercase;font-size:9px;letter-spacing:0.07em;margin-bottom:4px">Phase-down impact on KiwiSaver at 65</div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Full career (no phase-down)</span><span id="impactFull" style="color:var(--accent3)">—</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">With phase-down</span><span id="impactPhased" style="color:var(--accent2)">—</span></div>
+          <div style="display:flex;justify-content:space-between;border-top:1px solid rgba(224,92,106,0.2);margin-top:5px;padding-top:5px"><span style="color:var(--muted)">Difference</span><span id="impactDiff" style="color:var(--danger)">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Property</div>
+      <div class="toggle-row">
+        <div class="toggle-label">Include property equity<span>Home value − mortgage in net wealth</span></div>
+        <label class="toggle"><input type="checkbox" id="propToggle"><span class="toggle-slider"></span></label>
+      </div>
+      <div id="propControls" style="display:none;flex-direction:column;gap:10px;padding-top:10px">
+        <div class="control-group" style="margin-bottom:0">
+          <div class="control-label"><span>Current property value</span><span class="control-value" id="propValLabel">$700,000</span></div>
+          <input type="number" id="propVal" min="0" max="99999999" step="10000" value="700000" oninput="update()" placeholder="$">
+          <div class="slider-bounds"><span>$400k</span><span>$1.5m</span></div>
+        </div>
+        <div class="control-group" style="margin-bottom:0">
+          <div class="control-label"><span>Annual capital growth</span><span class="control-value" id="propGrowthLabel">3.0%</span></div>
+          <input type="number" id="propGrowth" min="-5" max="50" step="0.5" value="3" oninput="update()" placeholder="%">
+          <div class="slider-bounds"><span>0% flat</span><span>8%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Retirement Drawdown</div>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:12px;line-height:1.6">Project how long your nest egg lasts after 65. Includes NZ Super for two.</p>
+      <div class="control-group">
+        <div class="control-label"><span>Annual spend in retirement</span><span class="control-value" id="spendLabel">$70,000</span></div>
+        <input type="number" id="spendSlider" min="0" max="9999999" step="1000" value="70000" oninput="update()" placeholder="$">
+        <div class="slider-bounds"><span>$30k modest</span><span>$200k</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>NZ Super (couple, after tax)</span><span class="control-value" id="superLabel">$40,000</span></div>
+        <input type="number" id="superSlider" min="0" max="999999" step="1000" value="40000" oninput="update()" placeholder="$">
+        <div class="slider-bounds"><span>$0 (single)</span><span>$60k</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Drawdown return rate</span><span class="control-value" id="drawReturnLabel">5.0%</span></div>
+        <input type="number" id="drawReturnSlider" min="0" max="50" step="0.5" value="5" oninput="update()" placeholder="%">
+        <div class="slider-bounds"><span>1% conservative</span><span>10%</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Inflation in retirement</span><span class="control-value" id="drawInflLabel">2.5%</span></div>
+        <input type="number" id="drawInflSlider" min="0" max="20" step="0.5" value="2.5" oninput="update()" placeholder="%">
+        <div class="slider-bounds"><span>0%</span><span>6%</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Target age to fund to</span><span class="control-value" id="targetAgeLabel">90</span></div>
+        <input type="number" id="targetAge" min="65" max="130" step="1" value="90" oninput="update()" placeholder="age">
+        <div class="slider-bounds"><span>80</span><span>100</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div>
+    <!-- Accumulation headline cards -->
+    <div class="panel">
+      <div class="panel-title">At Age 65 — Accumulation Summary</div>
+      <div class="results-grid">
+        <div class="result-card" style="border-color:var(--accent3)">
+          <div class="label">KiwiSaver at 65</div>
+          <div class="value" id="ksAt65">—</div>
+          <div class="sub" id="ksAt65Sub">projected</div>
+        </div>
+        <div class="result-card" style="border-color:var(--accent)">
+          <div class="label" id="ksCrossLabel">Assets cover mortgage</div>
+          <div class="value" id="ksCrossYear" style="color:var(--accent)">—</div>
+          <div class="sub" id="ksCrossSub">year assets ≥ net debt</div>
+        </div>
+        <div class="result-card" id="netWealthCard">
+          <div class="label" id="ksNetLabel">Net Wealth (today)</div>
+          <div class="value" id="ksNetNow">—</div>
+          <div class="sub" id="ksNetSub">KiwiSaver − net debt</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accumulation chart -->
+    <div class="panel">
+      <div class="panel-title">Net Wealth — KiwiSaver vs Mortgage Debt</div>
+      <div class="chart-area-lg"><canvas id="ksChart"></canvas></div>
+    </div>
+
+    <!-- Retirement drawdown results -->
+    <div class="panel" id="careerChartPanel" style="display:none;margin-bottom:10px">
+      <div class="panel-title">Career Income Timeline</div>
+      <div style="position:relative;height:160px"><canvas id="careerChart"></canvas></div>
+      <div id="careerPhaseLabels" style="display:flex;gap:10px;margin-top:8px;font-size:9px;flex-wrap:wrap"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Retirement Drawdown — Age 65 onwards</div>
+      <div class="results-grid-2" style="margin-bottom:10px">
+        <div class="result-card" id="drawdownCard" style="border-color:var(--accent2)">
+          <div class="label">Funds last until age</div>
+          <div class="value" id="drawdownAge" style="color:var(--accent2)">—</div>
+          <div class="sub" id="drawdownSub">based on current scenario</div>
+        </div>
+        <div class="result-card">
+          <div class="label">Net annual gap</div>
+          <div class="value" id="annualGap" style="color:var(--accent)">—</div>
+          <div class="sub">spend minus NZ Super</div>
+        </div>
+        <div class="result-card">
+          <div class="label">Total drawn at <span id="targetAgeLbl">90</span></div>
+          <div class="value" id="totalDrawn" style="font-size:16px;color:var(--muted)">—</div>
+          <div class="sub">from KiwiSaver</div>
+        </div>
+        <div class="result-card" id="surplusCard">
+          <div class="label" id="surplusLabel">Balance at <span id="surplusAgeLbl">90</span></div>
+          <div class="value" id="surplusVal">—</div>
+          <div class="sub" id="surplusSub">remaining fund</div>
+        </div>
+      </div>
+      <div class="chart-area"><canvas id="drawdownChart"></canvas></div>
+    </div>
+
+    <!-- Annual table -->
+    <div class="panel" style="overflow-y:auto;max-height:380px">
+      <div class="panel-title">Annual Net Wealth Table</div>
+      <table class="bal-table">
+        <thead><tr><th>Year / Age</th><th>KiwiSaver</th><th>Net Debt</th><th id="propHeader">Net Wealth</th></tr></thead>
+        <tbody id="ksTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const SUITE_KEY = 'alisterway_suite_v1';
+const KS_MTC = 521.43;
+const _ksToday = new Date();
+const KS_START_YEAR = _ksToday.getFullYear();
+const AGE_START_DEFAULT = 43;
+const KS_YEARS_TO_65_MAX = 47; // max range (18→65)
+
+function loadSuite(){ try{return JSON.parse(localStorage.getItem(SUITE_KEY))||{};}catch(e){return{};} }
+function saveSuite(patch){ const s=loadSuite();Object.assign(s,patch);try{localStorage.setItem(SUITE_KEY,JSON.stringify(s));}catch(e){} }
+function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
+
+// ── KiwiSaver simulation ──────────────────────────────────────────────────────
+// salarySchedule: array of {salary, ownRate, empRate} indexed by year offset from today (optional)
+function simulateKS(balance, salary, ownRate, empRate, returnRate, inflationAdj, yearsTo65, ageStart, salarySchedule) {
+  let bal = balance;
+  const effectiveReturn = inflationAdj ? Math.max(0.01, returnRate/100 - 0.025) : returnRate/100;
+  const monthlyReturn = effectiveReturn/12;
+  const data = [];
+  for (let yr=0; yr<=yearsTo65; yr++) {
+    const phase = salarySchedule ? (salarySchedule[yr] || salarySchedule[salarySchedule.length-1]) : {salary, ownRate, empRate};
+    const annualContrib = phase.salary*(phase.ownRate/100) + phase.salary*(phase.empRate/100) + KS_MTC;
+    data.push({year:KS_START_YEAR+yr, balance:Math.round(bal), age:ageStart+yr, salary:phase.salary, contrib:Math.round(annualContrib)});
+    for (let m=0; m<12; m++) bal = bal*(1+monthlyReturn) + annualContrib/12;
+  }
+  return data;
+}
+
+// ── Retirement drawdown ───────────────────────────────────────────────────────
+function simulateDrawdown(startBalance, annualSpend, nzSuper, returnRate, inflation, targetAge) {
+  let bal = startBalance;
+  const netAnnualSpend = Math.max(0, annualSpend - nzSuper);
+  const data = [];
+  let depletion = null;
+  for (let age=65; age<=targetAge+5; age++) {
+    data.push({age, balance:Math.round(Math.max(0,bal))});
+    if (bal<=0 && !depletion) depletion = age;
+    const monthlyReturn = returnRate/100/12;
+    const monthlySpend  = netAnnualSpend/12 * Math.pow(1+inflation/100, age-65);
+    for (let m=0; m<12; m++) { bal = bal*(1+monthlyReturn) - monthlySpend; if(bal<0){bal=0;} }
+  }
+  return {data, depletion, netAnnualSpend};
+}
+
+// ── Charts ────────────────────────────────────────────────────────────────────
+const ksChart = new Chart(document.getElementById('ksChart').getContext('2d'),{
+  type:'line',
+  data:{datasets:[
+    {label:'KiwiSaver',    data:[],borderColor:'#7da7d9',backgroundColor:'rgba(125,167,217,0.08)',borderWidth:2,fill:true,tension:0.3,pointRadius:0},
+    {label:'Net debt',     data:[],borderColor:'#e05c6a',backgroundColor:'rgba(224,92,106,0.06)',borderWidth:2,borderDash:[4,3],fill:true,tension:0.3,pointRadius:0},
+    {label:'Net wealth',   data:[],borderColor:'#58c4a0',backgroundColor:'rgba(88,196,160,0.08)',borderWidth:2,fill:false,tension:0.3,pointRadius:0},
+    {label:'Property equity',data:[],borderColor:'#f0a05a',backgroundColor:'transparent',borderWidth:1.5,borderDash:[2,2],fill:false,tension:0.3,pointRadius:0,hidden:true},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{labels:{color:'#6e7d8e',font:{family:'DM Mono',size:10},boxWidth:10}},
+      tooltip:{backgroundColor:'#1c2330',borderColor:'#2a3441',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#6e7d8e',
+        titleFont:{family:'DM Mono'},bodyFont:{family:'DM Mono'},
+        callbacks:{title:items=>Math.floor(items[0].parsed.x)+'',label:item=>item.dataset.label+': '+fmt(item.parsed.y)}}
+    },
+    scales:{
+      x:{type:'linear',ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:10},callback:v=>Math.floor(v)},grid:{color:'#1c2330'},border:{color:'#2a3441'}},
+      y:{ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:10},callback:v=>'$'+(v/1000).toFixed(0)+'k'},grid:{color:'rgba(42,52,65,0.4)'},border:{color:'#2a3441'}}
+    }
+  }
+});
+
+const drawdownChart = new Chart(document.getElementById('drawdownChart').getContext('2d'),{
+  type:'line',
+  data:{datasets:[
+    {label:'KiwiSaver balance',data:[],borderColor:'#7da7d9',backgroundColor:'rgba(125,167,217,0.1)',borderWidth:2,fill:true,tension:0.3,pointRadius:0},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{labels:{color:'#6e7d8e',font:{family:'DM Mono',size:10},boxWidth:10}},
+      tooltip:{backgroundColor:'#1c2330',borderColor:'#2a3441',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#6e7d8e',
+        titleFont:{family:'DM Mono'},bodyFont:{family:'DM Mono'},
+        callbacks:{title:items=>'Age '+items[0].parsed.x,label:item=>fmt(item.parsed.y)}}
+    },
+    scales:{
+      x:{type:'linear',ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:10},callback:v=>'Age '+v},grid:{color:'#1c2330'},border:{color:'#2a3441'}},
+      y:{ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:10},callback:v=>'$'+(v/1000).toFixed(0)+'k'},grid:{color:'rgba(42,52,65,0.4)'},border:{color:'#2a3441'}}
+    }
+  }
+});
+
+// ── Career chart ─────────────────────────────────────────────────────────────
+const careerChart = new Chart(document.getElementById('careerChart').getContext('2d'),{
+  type:'bar',
+  data:{datasets:[
+    {label:'Peak',      data:[],backgroundColor:'rgba(125,167,217,0.7)',borderColor:'#7da7d9',borderWidth:1},
+    {label:'Transition',data:[],backgroundColor:'rgba(240,160,90,0.7)', borderColor:'#f0a05a',borderWidth:1},
+    {label:'Semi-retired',data:[],backgroundColor:'rgba(88,196,160,0.7)',borderColor:'#58c4a0',borderWidth:1},
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{labels:{color:'#6e7d8e',font:{family:'DM Mono',size:9},boxWidth:8,padding:8}},
+      tooltip:{backgroundColor:'#1c2330',borderColor:'#2a3441',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#6e7d8e',
+        titleFont:{family:'DM Mono',size:9},bodyFont:{family:'DM Mono',size:9},
+        callbacks:{title:items=>'Age '+items[0].label,label:item=>' '+item.dataset.label+': '+fmt(item.parsed.y)+'/yr'}}
+    },
+    scales:{
+      x:{stacked:false,ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:9}},grid:{color:'#1c2330'},border:{color:'#2a3441'}},
+      y:{ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:9},callback:v=>'$'+(v/1000).toFixed(0)+'k'},grid:{color:'rgba(42,52,65,0.4)'},border:{color:'#2a3441'}}
+    }
+  }
+});
+
+// ── Main update ───────────────────────────────────────────────────────────────
+function update() {
+  const ageInput      = parseInt(document.getElementById('ageInput').value) || AGE_START_DEFAULT;
+  const AGE_START     = Math.min(Math.max(ageInput, 18), 64); // clamp 18–64
+  const KS_YEARS_TO_65 = 65 - AGE_START;
+  const ksBal        = parseInt(document.getElementById('ksBal').value);
+  const ksEmp        = parseFloat(document.getElementById('ksEmp').value);
+  const ksEmpRate    = parseFloat(document.getElementById('ksEmpRate').value);
+  const ksSal        = parseInt(document.getElementById('ksSal').value);
+  const ksReturn     = parseFloat(document.getElementById('ksReturn').value);
+  const inflAdj      = document.getElementById('ksInflation').checked;
+  const propOn       = document.getElementById('propToggle').checked;
+  const propVal      = parseInt(document.getElementById('propVal').value);
+  const propGrowth   = parseFloat(document.getElementById('propGrowth').value);
+  const annualSpend  = parseInt(document.getElementById('spendSlider').value);
+  const nzSuper      = parseInt(document.getElementById('superSlider').value);
+  const drawReturn   = parseFloat(document.getElementById('drawReturnSlider').value);
+  const drawInfl     = parseFloat(document.getElementById('drawInflSlider').value);
+  const targetAge    = parseInt(document.getElementById('targetAge').value);
+
+  // Career phase-down inputs
+  const careerOn    = document.getElementById('careerToggle').checked;
+  const phase1Age   = parseInt(document.getElementById('phase1Age').value);   // pivot age
+  const phase2Pct   = parseInt(document.getElementById('phase2Pct').value);   // % of peak salary
+  const phase2Ks    = parseFloat(document.getElementById('phase2Ks').value);  // ks contrib % phase2
+  const phase3Age   = parseInt(document.getElementById('phase3Age').value);   // semi-retire age
+  const phase3Pct   = parseInt(document.getElementById('phase3Pct').value);   // % of peak salary
+  const phase3Ks    = parseFloat(document.getElementById('phase3Ks').value);  // ks contrib % phase3
+
+  // Clamp: phase3Age must be after phase1Age
+  const p3AgeClamped = Math.max(phase3Age, phase1Age+1);
+
+  const phase2Sal = Math.round(ksSal * phase2Pct/100);
+  const phase3Sal = Math.round(ksSal * phase3Pct/100);
+
+  // Build year-by-year salary schedule if career mode is on
+  let salarySchedule = null;
+  if (careerOn) {
+    salarySchedule = [];
+    for (let yr=0; yr<=KS_YEARS_TO_65; yr++) {
+      const age = AGE_START + yr;
+      if (age < phase1Age) {
+        salarySchedule.push({salary:ksSal,   ownRate:ksEmp, empRate:ksEmpRate});
+      } else if (age < p3AgeClamped) {
+        salarySchedule.push({salary:phase2Sal, ownRate:phase2Ks, empRate:phase2Ks>0?3:0});
+      } else {
+        salarySchedule.push({salary:phase3Sal, ownRate:phase3Ks, empRate:phase3Ks>0?3:0});
+      }
+    }
+  }
+
+  // Labels
+  document.getElementById('ksBalLabel').textContent    = fmt(ksBal);
+  document.getElementById('ksEmpLabel').textContent    = ksEmp+'%';
+  document.getElementById('ksEmpRateLabel').textContent= ksEmpRate+'%';
+  document.getElementById('ksSalLabel').textContent    = fmt(ksSal);
+  document.getElementById('ksReturnLabel').textContent = ksReturn+'%';
+  document.getElementById('spendLabel').textContent    = fmt(annualSpend)+'/yr';
+  document.getElementById('superLabel').textContent    = fmt(nzSuper)+'/yr';
+  document.getElementById('drawReturnLabel').textContent = drawReturn.toFixed(1)+'%';
+  document.getElementById('drawInflLabel').textContent = drawInfl.toFixed(1)+'%';
+  document.getElementById('targetAgeLabel').textContent= targetAge;
+  document.getElementById('targetAgeLbl').textContent  = targetAge;
+  document.getElementById('surplusAgeLbl').textContent = targetAge;
+  document.getElementById('propValLabel').textContent  = fmt(propVal);
+  document.getElementById('propGrowthLabel').textContent = propGrowth.toFixed(1)+'%';
+  document.getElementById('propControls').style.display = propOn?'flex':'none';
+
+  // Load mortgage data from suite
+  const suite = loadSuite();
+  const mortgageByYear = suite.mortgage?.mortgageByYear || {};
+  const hasMortgageData = Object.keys(mortgageByYear).length > 0;
+  document.getElementById('importNotice').style.display = hasMortgageData?'block':'none';
+
+  const netDebtToday = suite.mortgage?.netDebt || 0;
+
+  // Safe debt lookup: years before any mortgage data → netDebtToday; years beyond payoff → 0
+  const mortgageYears = Object.keys(mortgageByYear).map(Number).sort((a,b)=>a-b);
+  const firstMortgageYear = mortgageYears[0] || null;
+  const lastMortgageYear  = mortgageYears[mortgageYears.length-1] || null;
+  function getNetDebt(year) {
+    if (!hasMortgageData) return netDebtToday;
+    if (year < firstMortgageYear) return netDebtToday;
+    if (year > lastMortgageYear)  return 0;  // mortgage paid off — don't fall back to today's balance
+    return mortgageByYear[year] ?? 0;
+  }
+
+  // KiwiSaver simulation
+  const ksData = simulateKS(ksBal, ksSal, ksEmp, ksEmpRate, ksReturn, inflAdj, KS_YEARS_TO_65, AGE_START, salarySchedule);
+  const ksAt65 = ksData[ksData.length-1].balance;
+  document.getElementById('ksAt65').textContent = fmt(ksAt65);
+  document.getElementById('ksAt65Sub').textContent = inflAdj?(careerOn?'real (phased)':'real (2.5% adj)'):(careerOn?'nominal (phased)':'nominal');
+
+  // Career panel UI updates
+  document.getElementById('careerControls').style.display   = careerOn?'block':'none';
+  document.getElementById('careerChartPanel').style.display = careerOn?'block':'none';
+  document.getElementById('phase1AgeLabel').textContent     = phase1Age;
+  document.getElementById('phase2PctLabel').textContent     = phase2Pct+'%';
+  document.getElementById('phase2KsLabel').textContent      = phase2Ks+'%';
+  document.getElementById('phase3AgeLabel').textContent     = p3AgeClamped;
+  document.getElementById('phase3PctLabel').textContent     = phase3Pct+'%';
+  document.getElementById('phase3KsLabel').textContent      = phase3Ks+'%';
+  document.getElementById('phase1SalDisplay').textContent   = fmt(ksSal);
+  document.getElementById('phase2SalDisplay').textContent   = fmt(phase2Sal);
+  document.getElementById('phase3SalDisplay').textContent   = fmt(phase3Sal);
+
+  if (careerOn) {
+    // Impact comparison: full career vs phased
+    const ksDataFull = simulateKS(ksBal, ksSal, ksEmp, ksEmpRate, ksReturn, inflAdj, KS_YEARS_TO_65, AGE_START, null);
+    const fullAt65   = ksDataFull[ksDataFull.length-1].balance;
+    const diff       = ksAt65 - fullAt65;
+    document.getElementById('impactFull').textContent   = fmt(fullAt65);
+    document.getElementById('impactPhased').textContent = fmt(ksAt65);
+    document.getElementById('impactDiff').textContent   = (diff>=0?'+':'')+fmt(diff);
+    document.getElementById('impactDiff').style.color   = diff>=0?'var(--accent)':'var(--danger)';
+
+    // Career chart data — one bar per age showing salary by phase
+    const ages=[], peakData=[], transData=[], semiData=[];
+    ksData.forEach((d,i)=>{
+      const age=d.age; const sal=d.salary;
+      ages.push(age);
+      const ph = age < phase1Age ? 1 : age < p3AgeClamped ? 2 : 3;
+      peakData.push(ph===1?sal:0);
+      transData.push(ph===2?sal:0);
+      semiData.push(ph===3?sal:0);
+    });
+    careerChart.data.labels = ages;
+    careerChart.data.datasets[0].data = peakData;
+    careerChart.data.datasets[1].data = transData;
+    careerChart.data.datasets[2].data = semiData;
+    careerChart.update('none');
+
+    // Phase labels
+    document.getElementById('careerPhaseLabels').innerHTML =
+      `<span style="color:var(--accent3)">● Peak: age ${AGE_START}–${phase1Age-1} @ ${fmt(ksSal)}/yr</span>` +
+      `<span style="color:var(--accent2)">● Transition: age ${phase1Age}–${p3AgeClamped-1} @ ${fmt(phase2Sal)}/yr</span>` +
+      `<span style="color:var(--accent)">● Semi-retired: age ${p3AgeClamped}–64 @ ${fmt(phase3Sal)}/yr</span>`;
+  }
+
+  function propValueByYear(year) {
+    if(!propOn) return 0;
+    return propVal * Math.pow(1+propGrowth/100, year-KS_START_YEAR);
+  }
+
+  // Net wealth today
+  const netWealthNow = propOn ? ksBal+propVal-netDebtToday : ksBal-netDebtToday;
+  const ksNetEl = document.getElementById('ksNetNow');
+  ksNetEl.textContent = fmt(netWealthNow);
+  ksNetEl.style.color = netWealthNow>=0?'var(--accent)':'var(--danger)';
+  document.getElementById('ksNetLabel').textContent = propOn?'True Net Wealth (today)':'Net Wealth (today)';
+  document.getElementById('ksNetSub').textContent   = propOn?'KiwiSaver + equity − debt':'KiwiSaver − net debt';
+  document.getElementById('ksCrossLabel').textContent= propOn?'Assets cover mortgage':'KiwiSaver covers mortgage';
+
+  // Crossover year
+  let ksCrossYear = null;
+  for (const d of ksData) {
+    const nd = getNetDebt(d.year);
+    const nw = d.balance+(propOn?propValueByYear(d.year):0)-nd;
+    if(nw>=0&&!ksCrossYear){ksCrossYear=d.year;break;}
+  }
+  document.getElementById('ksCrossYear').textContent = ksCrossYear||'—';
+  document.getElementById('ksCrossSub').textContent  = ksCrossYear
+    ?(propOn?'KiwiSaver + equity ≥ net debt':'KiwiSaver ≥ net debt')
+    :"assets don't cover debt by 65";
+
+  // Accumulation chart
+  ksChart.data.datasets[0].data = ksData.map(d=>({x:d.year,y:d.balance}));
+  ksChart.data.datasets[1].data = ksData.map(d=>({x:d.year,y:getNetDebt(d.year)}));
+  ksChart.data.datasets[2].data = ksData.map(d=>({x:d.year,y:d.balance+(propOn?propValueByYear(d.year):0)-getNetDebt(d.year)}));
+  ksChart.data.datasets[3].data = ksData.map(d=>({x:d.year,y:propValueByYear(d.year)}));
+  ksChart.data.datasets[3].hidden=!propOn;
+  ksChart.update('none');
+
+  // Retirement drawdown simulation
+  const drawData = simulateDrawdown(ksAt65, annualSpend, nzSuper, drawReturn, drawInfl, targetAge);
+  const depletionAge = drawData.depletion;
+  const netGap = drawData.netAnnualSpend;
+  const balAtTarget = drawData.data.find(d=>d.age===targetAge)?.balance||0;
+  const totalWithdrawn = Math.max(0, ksAt65-balAtTarget);
+
+  document.getElementById('annualGap').textContent  = fmt(netGap)+'/yr';
+  document.getElementById('totalDrawn').textContent = fmt(totalWithdrawn);
+  document.getElementById('surplusVal').textContent = fmt(balAtTarget);
+  document.getElementById('surplusVal').style.color = balAtTarget>0?'var(--accent)':'var(--danger)';
+  document.getElementById('surplusSub').textContent = balAtTarget>0?'surplus remaining':'funds exhausted before target';
+  document.getElementById('surplusLabel').innerHTML = `Balance at age <span id="surplusAgeLbl">${targetAge}</span>`;
+
+  if (depletionAge) {
+    document.getElementById('drawdownAge').textContent  = depletionAge;
+    document.getElementById('drawdownAge').style.color  = depletionAge>=targetAge?'var(--accent)':'var(--danger)';
+    document.getElementById('drawdownSub').textContent  = depletionAge>=targetAge?'funds outlast target ✓':'funds run out before target ⚠';
+    document.getElementById('drawdownCard').style.borderColor = depletionAge>=targetAge?'var(--accent)':'var(--danger)';
+  } else {
+    document.getElementById('drawdownAge').textContent  = targetAge+'+';
+    document.getElementById('drawdownAge').style.color  = 'var(--accent)';
+    document.getElementById('drawdownSub').textContent  = 'funds outlast projection ✓';
+    document.getElementById('drawdownCard').style.borderColor = 'var(--accent)';
+  }
+
+  drawdownChart.data.datasets[0].data = drawData.data.map(d=>({x:d.age,y:d.balance}));
+  drawdownChart.update('none');
+
+  // Annual table
+  const propHeader = propOn?'KiwiSaver + Equity':'Net Wealth';
+  document.getElementById('propHeader').textContent = propHeader;
+  document.getElementById('ksTable').innerHTML = ksData.map(d=>{
+    const nd = getNetDebt(d.year);
+    const propV = propOn?propValueByYear(d.year):0;
+    const nw = d.balance+propV-nd;
+    const isPos = nw>=0;
+    const isCross = ksCrossYear&&d.year===ksCrossYear;
+    const cls = isCross?'crossover-yr':'';
+    const ksDisplay = propOn?`${fmt(d.balance)}+${fmt(propV)}`:fmt(d.balance);
+    return `<tr class="${cls}"><td>${d.year} / age ${d.age}${isCross?' 🎯':''}</td><td style="color:var(--accent3)">${ksDisplay}</td><td style="color:${nd>0?'var(--danger)':'var(--muted)'}">${nd>0?fmt(nd):'—'}</td><td style="color:${isPos?'var(--accent)':'var(--danger)'}">${fmt(nw)}</td></tr>`;
+  }).join('');
+
+  // Save to suite
+  saveSuite({
+    kiwisaver: {
+      ageInput: AGE_START, ksBal, ksEmp, ksEmpRate, ksSal, ksReturn, inflAdj,
+      careerOn, phase1Age, phase2Pct, phase2Ks, phase3Age:p3AgeClamped, phase3Pct, phase3Ks,
+      propOn, propVal, propGrowth,
+      annualSpend, nzSuper, drawReturn, drawInfl, targetAge,
+      ksAt65,
+      ksByYear: Object.fromEntries(ksData.map(d=>[d.year,d.balance]))
+    }
+  });
+  document.getElementById('syncBadge').textContent='● synced';
+}
+
+// ── Load state ────────────────────────────────────────────────────────────────
+function loadState() {
+  const s = loadSuite();
+  const k = s.kiwisaver;
+  if (!k) return;
+  const set=(id,val)=>{const el=document.getElementById(id);if(el&&val!=null)el.value=val;};
+  set('ageInput',k.ageInput);
+  if(k.careerOn!=null) document.getElementById('careerToggle').checked=k.careerOn;
+  set('phase1Age',k.phase1Age); set('phase2Pct',k.phase2Pct); set('phase2Ks',k.phase2Ks);
+  set('phase3Age',k.phase3Age); set('phase3Pct',k.phase3Pct); set('phase3Ks',k.phase3Ks);
+  set('ksBal',k.ksBal);set('ksEmp',k.ksEmp);set('ksEmpRate',k.ksEmpRate);
+  set('ksSal',k.ksSal);set('ksReturn',k.ksReturn);
+  set('propVal',k.propVal);set('propGrowth',k.propGrowth);
+  set('spendSlider',k.annualSpend);set('superSlider',k.nzSuper);
+  set('drawReturnSlider',k.drawReturn);set('drawInflSlider',k.drawInfl);
+  set('targetAge',k.targetAge);
+  if(k.inflAdj!=null) document.getElementById('ksInflation').checked=k.inflAdj;
+  if(k.propOn!=null)  document.getElementById('propToggle').checked=k.propOn;
+}
+
+loadState();
+['ksBal','ksEmp','ksEmpRate','ksSal','ksReturn','propVal','propGrowth',
+ 'spendSlider','superSlider','drawReturnSlider','drawInflSlider','targetAge',
+ 'phase1Age','phase2Pct','phase2Ks','phase3Age','phase3Pct','phase3Ks']
+  .forEach(id=>document.getElementById(id).addEventListener('input',update));
+['ksInflation','propToggle']
+  .forEach(id=>document.getElementById(id).addEventListener('change',update));
+update();
+</script>
+</body>
+</html>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insurance Phase-Down — Alister Way Suite</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap');
+:root {
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2330;
+  --border:#2a3441;--accent:#58c4a0;--accent2:#f0a05a;
+  --accent3:#7da7d9;--danger:#e05c6a;--text:#e2e8f0;--muted:#6e7d8e;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;min-height:100vh;padding:20px}
+.suite-nav{display:flex;gap:6px;margin-bottom:20px;align-items:center}
+.suite-nav a{padding:5px 14px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;text-decoration:none;border:1px solid var(--border);color:var(--muted);transition:all 0.15s}
+.suite-nav a.active{background:var(--accent2);color:var(--bg);border-color:var(--accent2);font-weight:500}
+.suite-nav a:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+.suite-title{font-family:'Fraunces',serif;font-weight:300;font-size:11px;color:var(--muted);margin-right:8px;letter-spacing:0.06em}
+h1{font-family:'Fraunces',serif;font-weight:300;font-size:24px;color:var(--accent2);margin-bottom:2px}
+.subtitle{color:var(--muted);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:14px;max-width:1160px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.panel:last-child{margin-bottom:0}
+.panel-title{font-family:'Fraunces',serif;font-weight:600;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.control-group{margin-bottom:12px}.control-group:last-child{margin-bottom:0}
+.control-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.06em}
+.control-value{font-size:13px;color:var(--text);font-weight:500}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:var(--border);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent2);cursor:pointer;border:2px solid var(--bg);box-shadow:0 0 8px rgba(240,160,90,0.4)}
+.slider-bounds{display:flex;justify-content:space-between;margin-top:3px;color:var(--muted);font-size:9px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
+.toggle-label span{display:block;font-size:11px;color:var(--text);text-transform:none;letter-spacing:0;margin-top:1px}
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle input{display:none}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:10px;cursor:pointer;transition:background 0.2s}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:var(--muted);top:3px;left:3px;transition:transform 0.2s,background 0.2s}
+.toggle input:checked+.toggle-slider{background:rgba(240,160,90,0.2)}
+.toggle input:checked+.toggle-slider::before{background:var(--accent2);transform:translateX(16px)}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
+.field input{background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:5px 7px;outline:none;width:100%;transition:border-color 0.15s}
+.field input:focus{border-color:var(--accent2)}
+.ins-table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px;margin-top:4px}
+.ins-table th{color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:0.07em;font-weight:400;padding:0 9px 9px;text-align:right;border-bottom:1px solid var(--border)}
+.ins-table th:first-child{text-align:left;padding-left:0}
+.ins-table th:last-child{padding-right:0}
+.ins-table td{padding:8px 9px;text-align:right;border-bottom:1px solid rgba(42,52,65,0.3);color:var(--text);font-size:11px;vertical-align:middle}
+.ins-table td:first-child{text-align:left;color:var(--muted);font-size:10px;padding-left:0}
+.ins-table td:last-child{padding-right:0}
+.ins-table tr:last-child td{border-bottom:none}
+.ins-status-pill{display:inline-block;padding:2px 7px;border-radius:3px;font-size:9px;font-weight:500;letter-spacing:0.03em}
+.ins-status-pill.ok{background:rgba(88,196,160,0.12);color:var(--accent)}
+.ins-status-pill.warn{background:rgba(224,92,106,0.12);color:var(--danger)}
+.ins-status-pill.caution{background:rgba(240,160,90,0.12);color:var(--accent2)}
+.ins-milestone-row{display:grid;grid-template-columns:1fr 1fr 1fr 22px;gap:6px;align-items:center;margin-bottom:4px}
+.ins-milestone-row input{background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:4px 6px;width:100%;outline:none}
+.ins-milestone-row input:focus{border-color:var(--accent2)}
+.del-btn{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0;text-align:center;line-height:1}
+.del-btn:hover{color:var(--danger)}
+.ins-milestone-hdr{display:grid;grid-template-columns:1fr 1fr 1fr 22px;gap:6px;margin-bottom:6px}
+.ins-milestone-hdr span{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em}
+.ins-legend{display:flex;gap:12px;margin-top:10px;font-size:9px;color:var(--muted);flex-wrap:wrap}
+.ins-legend span{display:flex;align-items:center;gap:4px}
+.ins-legend .dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.agenda-box{background:rgba(88,196,160,0.06);border:1px solid rgba(88,196,160,0.2);border-radius:8px;padding:12px;margin-bottom:10px}
+.chart-area{position:relative;height:180px}
+canvas{width:100%!important;height:100%!important}
+.sync-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:4px;background:rgba(88,196,160,0.1);border:1px solid rgba(88,196,160,0.25);font-size:9px;color:var(--accent);margin-left:auto}
+.checklist-row{display:grid;grid-template-columns:16px 1fr auto;gap:8px;align-items:start;padding:7px 0;border-bottom:1px solid rgba(42,52,65,0.3)}
+.checklist-row:last-child{border-bottom:none}
+</style>
+</head>
+<body>
+<nav class="suite-nav">
+  <span class="suite-title">Alister Way</span>
+  <a href="01-mortgage.html">① Mortgage</a>
+  <a href="04-budgets.html">② Budgets</a>
+  <a href="02-kiwisaver.html">③ KiwiSaver & Wealth</a>
+  <a href="03-insurance.html" class="active">④ Insurance</a>
+  <a href="05-action-plan.html">⑤ Action Plan</a>
+  <span class="sync-badge" id="syncBadge">● synced</span>
+  <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+    <button onclick="exportSuite()" style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬇ Export</button>
+    <label style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Import<input type="file" accept=".json" onchange="importSuite(event)" style="display:none"></label>
+  </div>
+</nav>
+<h1>Insurance Phase-Down</h1>
+<p class="subtitle">Life & crisis cover — stepped reduction plan to self-insured</p>
+
+<div class="layout">
+  <!-- LEFT -->
+  <div>
+    <div class="agenda-box">
+      <div style="font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;font-weight:500;margin-bottom:8px">August 2026 — Insurer call agenda</div>
+      <div style="font-size:10px;color:var(--muted);line-height:1.9">
+        <div>① Reduce life cover: <span style="color:var(--text)">$549k → $500k</span></div>
+        <div>② Freeze CPI on crisis cover: <span style="color:var(--text)">stop automatic increases</span></div>
+        <div>③ Level premium quote: <span style="color:var(--text)">confirm all 3 discounts apply</span></div>
+        <div>④ Ask: <span style="color:var(--text)">is level premium truly fixed?</span></div>
+        <div>⑤ Ask: <span style="color:var(--text)">can sum insured reduce later without re-underwriting?</span></div>
+      </div>
+      <div style="font-size:9px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid rgba(88,196,160,0.15)">Get level quote in writing — don't convert on the call.</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Dependants</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div class="field"><label>Child 1 age</label><input type="number" id="insChild1" value="12" min="0" max="25" oninput="update()"></div>
+        <div class="field"><label>Child 2 age</label><input type="number" id="insChild2" value="7" min="0" max="25" oninput="update()"></div>
+        <div class="field"><label>Independent at</label><input type="number" id="insIndepAge" value="20" min="18" max="25" oninput="update()"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title" style="display:flex;justify-content:space-between;align-items:baseline">
+        Cover Milestones
+        <button onclick="addMilestone()" style="font-size:9px;padding:2px 8px;cursor:pointer;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--accent2);font-family:'DM Mono',monospace">+ add</button>
+      </div>
+      <div class="ins-milestone-hdr">
+        <span>Year</span><span>Life ($k)</span><span>Crisis ($k)</span><span></span>
+      </div>
+      <div id="milestoneList"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Upsize Scenario</div>
+      <div class="toggle-row">
+        <div class="toggle-label">Model a larger mortgage<span id="upsizeDesc">Off — current mortgage only</span></div>
+        <label class="toggle"><input type="checkbox" id="upsizeToggle" onchange="update()"><span class="toggle-slider"></span></label>
+      </div>
+      <div id="upsizeControls" style="display:none;flex-direction:column;gap:10px;padding-top:10px">
+        <div class="control-group" style="margin-bottom:0">
+          <div class="control-label"><span>New property price</span><span class="control-value" id="upsizePriceLabel">$1,000,000</span></div>
+          <input type="range" id="upsizePrice" min="600000" max="2000000" step="50000" value="1000000" oninput="update()">
+          <div class="slider-bounds"><span>$600k</span><span>$2m</span></div>
+        </div>
+        <div class="control-group" style="margin-bottom:0">
+          <div class="control-label"><span>Equity from sale</span><span class="control-value" id="upsizeEquityLabel">$400,000</span></div>
+          <input type="range" id="upsizeEquity" min="0" max="900000" step="10000" value="400000" oninput="update()">
+          <div class="slider-bounds"><span>$0</span><span>$900k</span></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-top:1px solid var(--border)">
+          <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em">New net debt</span>
+          <span style="font-family:'Fraunces',serif;font-size:16px;color:var(--danger)" id="upsizeNetDebt">—</span>
+        </div>
+        <div style="font-size:9px;line-height:1.5" id="upsizeCoverGap"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Premium Comparison</div>
+      <div class="control-group">
+        <div class="control-label"><span>Your CPI-linked premium (now)</span><span class="control-value" id="insPremLabel">$190/mo</span></div>
+        <input type="range" id="insPrem" min="50" max="1000" step="10" value="190" oninput="update()">
+        <div class="slider-bounds"><span>$50</span><span>$1,000</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>CPI escalation rate</span><span class="control-value" id="insEscLabel">8.0%/yr</span></div>
+        <input type="range" id="insEsc" min="1" max="12" step="0.5" value="8" oninput="update()">
+        <div class="slider-bounds"><span>1%</span><span>12%</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Level alternative (fixed)</span><span class="control-value" id="insLevelLabel">$300/mo</span></div>
+        <input type="range" id="insLevel" min="50" max="600" step="5" value="300" oninput="update()">
+        <div class="slider-bounds"><span>$50</span><span>$600</span></div>
+      </div>
+      <div class="control-group">
+        <div class="control-label"><span>Affordability ceiling</span><span class="control-value" id="insAffordLabel">$500/mo</span></div>
+        <input type="range" id="insAfford" min="100" max="1500" step="50" value="500" oninput="update()">
+        <div class="slider-bounds"><span>$100</span><span>$1,500</span></div>
+      </div>
+      <div style="font-size:9px;color:var(--muted);line-height:1.7;padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:8px 0">
+        CPI crosses level at: <span style="font-weight:500" id="insCrossoverNote">—</span><br>
+        Affordability cliff: <span id="insCliffYear" style="color:var(--danger);font-weight:500">—</span>
+        <span style="display:block;margin-top:2px" id="insCliffNote"></span>
+      </div>
+      <div style="position:relative;height:150px;margin-top:8px"><canvas id="insPremChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div>
+    <!-- Coverage adequacy table -->
+    <div class="panel">
+      <div class="panel-title">Coverage Adequacy — Snap Shots</div>
+      <table class="ins-table">
+        <thead><tr>
+          <th>Age / Year</th><th>Life cover</th><th>Crisis cover</th>
+          <th>Net debt</th><th>KiwiSaver</th><th>Status</th>
+        </tr></thead>
+        <tbody id="insTable"></tbody>
+      </table>
+      <div class="ins-legend">
+        <span><span class="dot" style="background:var(--danger)"></span> Cover below debt</span>
+        <span><span class="dot" style="background:var(--accent2)"></span> Deps at home / caution</span>
+        <span><span class="dot" style="background:var(--accent)"></span> On track</span>
+      </div>
+    </div>
+
+    <!-- Crisis cover self-assessment -->
+    <div class="panel">
+      <div class="panel-title" style="display:flex;justify-content:space-between;align-items:baseline">
+        Crisis Cover Self-Assessment
+        <div id="crisisVerdict" style="font-size:10px;font-weight:500;padding:2px 10px;border-radius:3px"></div>
+      </div>
+      <div id="crisisChecklist"></div>
+      <div style="margin-top:12px;padding:10px;background:rgba(88,196,160,0.06);border:1px solid rgba(88,196,160,0.2);border-radius:6px;font-size:9px;color:var(--muted);line-height:1.7">
+        <strong style="color:var(--accent)">Family history — GP fully assessed (2025):</strong><br>
+        <strong style="color:var(--text)">Maternal:</strong> Two cousins with breast cancer at 56. Third-degree relatives — GP confirmed no elevated BRCA risk, baseline population risk (~1 in 9 lifetime).<br><br>
+        <strong style="color:var(--text)">Paternal:</strong> Father had cardiac event 2021 (PCI/catheter), congenital heart defect identified, stroke at 75. GP advises congenital defect likely not hereditary. Blood pressure and bloods normal at 43.<br><br>
+        <strong style="color:var(--accent)">Baseline established.</strong> Continue routine monitoring.
+      </div>
+    </div>
+
+    <!-- "Self-insured" note -->
+    <div class="panel" style="margin-bottom:0">
+      <div class="panel-title">Self-Insured — What It Actually Means</div>
+      <p style="font-size:10px;color:var(--muted);line-height:1.7">"Self-insured" appears when KiwiSaver balance exceeds remaining net debt — your assets could theoretically clear the mortgage. It does <em>not</em> mean you can drop cover to zero: KiwiSaver is locked until 65, property equity is illiquid, and your income still funds dependants' lives for years after the mortgage is gone.</p>
+      <p style="font-size:10px;color:var(--muted);line-height:1.7;margin-top:8px">Think of it as a signal to step down significantly, not to stop entirely. Consult your adviser before any reduction.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const SUITE_KEY = 'alisterway_suite_v1';
+const INS_LIFE_START  = 548874;
+const INS_CRISIS_START= 169887;
+const INS_AGE_START   = 43;
+const INS_BASE_YEAR   = 2026;
+
+function loadSuite(){ try{return JSON.parse(localStorage.getItem(SUITE_KEY))||{};}catch(e){return{};} }
+function saveSuite(patch){ const s=loadSuite();Object.assign(s,patch);try{localStorage.setItem(SUITE_KEY,JSON.stringify(s));}catch(e){} }
+function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
+
+// ── Milestones ────────────────────────────────────────────────────────────────
+const DEFAULT_MILESTONES = [
+  {year:2026,life:500,crisis:170,label:'Now — initial reduction'},
+  {year:2032,life:400,crisis:150,label:'Child 1 independent'},
+  {year:2034,life:350,crisis:130,label:'M1/M2 cleared'},
+  {year:2039,life:200,crisis:100,label:'Child 2 independent'},
+  {year:2043,life:100,crisis:75,label:'Mortgage free / floor'},
+];
+let milestones = DEFAULT_MILESTONES.map(m=>({...m}));
+
+function renderMilestones() {
+  const list = document.getElementById('milestoneList');
+  list.innerHTML = milestones.map((m,i)=>`
+    <div class="ins-milestone-row">
+      <input type="number" value="${m.year}" min="2026" max="2050" step="1"
+        oninput="milestones[${i}].year=parseInt(this.value)||${m.year};update()" title="${m.label}">
+      <input type="number" value="${m.life}" min="0" max="600" step="10"
+        oninput="milestones[${i}].life=parseInt(this.value)||0;update()">
+      <input type="number" value="${m.crisis}" min="0" max="200" step="5"
+        oninput="milestones[${i}].crisis=parseInt(this.value)||0;update()">
+      <button class="del-btn" onclick="deleteMilestone(${i})" title="Remove">×</button>
+    </div>
+    <div style="font-size:9px;color:var(--muted);padding:0 0 5px 2px;margin-top:-2px">${m.label}</div>
+  `).join('');
+}
+
+function addMilestone() {
+  const last=milestones[milestones.length-1]||{year:INS_BASE_YEAR,life:300,crisis:100};
+  milestones.push({year:Math.min(last.year+5,2050),life:Math.max(0,last.life-50),crisis:Math.max(0,last.crisis-25),label:'New milestone'});
+  renderMilestones();update();
+}
+function deleteMilestone(i){ if(milestones.length<=1)return;milestones.splice(i,1);renderMilestones();update(); }
+
+function getCoverAtYear(year) {
+  const sorted=[...milestones].sort((a,b)=>a.year-b.year);
+  let life=INS_LIFE_START/1000,crisis=INS_CRISIS_START/1000;
+  for(const m of sorted){if(year>=m.year){life=m.life;crisis=m.crisis;}else break;}
+  return{life:life*1000,crisis:crisis*1000};
+}
+
+// ── Premium chart ─────────────────────────────────────────────────────────────
+let premChart = null;
+function getPremChart(){
+  if(premChart) return premChart;
+  premChart=new Chart(document.getElementById('insPremChart').getContext('2d'),{
+    type:'line',
+    data:{datasets:[
+      {label:'CPI-linked premium',data:[],borderColor:'#e05c6a',backgroundColor:'rgba(224,92,106,0.08)',borderWidth:2,fill:true,tension:0.3,pointRadius:0},
+      {label:'Level alternative',data:[],borderColor:'#7da7d9',borderWidth:1.5,borderDash:[4,3],fill:false,tension:0,pointRadius:0},
+      {label:'Affordability ceiling',data:[],borderColor:'#f0a05a',borderWidth:1,borderDash:[2,4],fill:false,tension:0,pointRadius:0},
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{labels:{color:'#6e7d8e',font:{family:'DM Mono',size:9},boxWidth:8,padding:8}},
+        tooltip:{backgroundColor:'#1c2330',borderColor:'#2a3441',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#6e7d8e',
+          titleFont:{family:'DM Mono',size:9},bodyFont:{family:'DM Mono',size:9},
+          callbacks:{title:items=>'Age '+(INS_AGE_START+Math.round(items[0].parsed.x-INS_BASE_YEAR))+' / '+Math.round(items[0].parsed.x),
+            label:item=>' '+item.dataset.label+': $'+Math.round(item.parsed.y)+'/mo'}}
+      },
+      scales:{
+        x:{type:'linear',min:INS_BASE_YEAR,max:INS_BASE_YEAR+22,ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:9},callback:v=>Math.floor(v)},grid:{color:'#1c2330'},border:{color:'#2a3441'}},
+        y:{ticks:{color:'#6e7d8e',font:{family:'DM Mono',size:9},callback:v=>'$'+Math.round(v)},grid:{color:'rgba(42,52,65,0.4)'},border:{color:'#2a3441'}}
+      }
+    }
+  });
+  return premChart;
+}
+
+// ── Main update ───────────────────────────────────────────────────────────────
+function update() {
+  const child1Age  = parseInt(document.getElementById('insChild1').value)||0;
+  const child2Age  = parseInt(document.getElementById('insChild2').value)||0;
+  const indepAge   = parseInt(document.getElementById('insIndepAge').value)||20;
+  const upsizeOn   = document.getElementById('upsizeToggle').checked;
+  const upsizePrice= parseInt(document.getElementById('upsizePrice').value);
+  const upsizeEquity=parseInt(document.getElementById('upsizeEquity').value);
+  const upsizeNet  = Math.max(0,upsizePrice-upsizeEquity);
+
+  document.getElementById('upsizeControls').style.display=upsizeOn?'flex':'none';
+  document.getElementById('upsizePriceLabel').textContent ='$'+(upsizePrice/1000).toFixed(0)+'k';
+  document.getElementById('upsizeEquityLabel').textContent='$'+(upsizeEquity/1000).toFixed(0)+'k';
+  document.getElementById('upsizeNetDebt').textContent    ='$'+Math.round(upsizeNet/1000)+'k';
+  document.getElementById('upsizeDesc').textContent=upsizeOn
+    ?`$${Math.round(upsizePrice/1000)}k purchase, $${Math.round(upsizeNet/1000)}k net debt`
+    :'Off — current mortgage only';
+
+  const coverGapEl=document.getElementById('upsizeCoverGap');
+  if(upsizeOn){
+    const firstLife=getCoverAtYear(INS_BASE_YEAR).life;
+    const gap=upsizeNet-firstLife;
+    coverGapEl.textContent=gap>0
+      ?`⚠ Life cover is $${Math.round(gap/1000)}k short of new net debt — consider topping up before upsizing.`
+      :`Life cover clears new debt with $${Math.round(Math.abs(gap)/1000)}k headroom.`;
+    coverGapEl.style.color=gap>0?'var(--danger)':'var(--accent)';
+  } else {coverGapEl.textContent='';}
+
+  // Load live data from suite
+  const suite=loadSuite();
+  const mortgageByYear=suite.mortgage?.mortgageByYear||{};
+  const ksByYear=suite.kiwisaver?.ksByYear||{};
+  const netDebtToday=suite.mortgage?.netDebt||0;
+
+  const lastDepYear=INS_BASE_YEAR+Math.max(indepAge-child1Age,indepAge-child2Age);
+
+  // Coverage table
+  const rows=[0,2,4,7,10,14,17,22];
+  document.getElementById('insTable').innerHTML=rows.map(y=>{
+    const age=INS_AGE_START+y;
+    const year=INS_BASE_YEAR+y;
+    const{life,crisis}=getCoverAtYear(year);
+    const baseDebt=mortgageByYear[year]??netDebtToday;
+    const netDebt=upsizeOn?Math.max(baseDebt,upsizeNet-(upsizeNet-baseDebt)*(y/22)):baseDebt;
+    const ksBal=ksByYear[year]??0;
+    const ksCoversDebt=ksBal>=netDebt&&netDebt>0;
+    const depsAtHome=year<lastDepYear;
+    const coverBelowDebt=life<netDebt;
+
+    let statusText,pillClass,lifeCls;
+    if(coverBelowDebt&&!ksCoversDebt){statusText='Cover < debt';pillClass='warn';lifeCls='color:var(--danger)';}
+    else if(coverBelowDebt&&ksCoversDebt){statusText='KS covers gap';pillClass='caution';lifeCls='color:var(--accent2)';}
+    else if(!depsAtHome&&netDebt===0){statusText='Self-insured';pillClass='ok';lifeCls='color:var(--accent)';}
+    else{statusText=depsAtHome?'Deps at home':'On track';pillClass=depsAtHome?'caution':'ok';lifeCls='color:var(--accent3)';}
+    if(year===lastDepYear) statusText='Deps independent';
+
+    const ksColor=ksBal>=netDebt&&netDebt>0?'var(--accent)':ksBal>netDebt*0.5?'var(--accent2)':'var(--accent3)';
+    return `<tr>
+      <td>Age ${age} / ${year}</td>
+      <td style="${lifeCls}">$${Math.round(life/1000)}k</td>
+      <td style="color:var(--accent2)">$${Math.round(crisis/1000)}k</td>
+      <td style="color:${netDebt>0?(coverBelowDebt?'var(--danger)':'rgba(224,92,106,0.55)'):'var(--muted)'}">
+        ${netDebt>0?'$'+Math.round(netDebt/1000)+'k':'—'}
+      </td>
+      <td style="color:${ksColor}">$${Math.round(ksBal/1000)}k</td>
+      <td><span class="ins-status-pill ${pillClass}">${statusText}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Premium chart
+  const basePrem=parseInt(document.getElementById('insPrem').value);
+  const escRate=parseFloat(document.getElementById('insEsc').value)/100;
+  const levelPrem=parseInt(document.getElementById('insLevel').value);
+  const afford=parseInt(document.getElementById('insAfford').value);
+  document.getElementById('insPremLabel').textContent   ='$'+basePrem+'/mo';
+  document.getElementById('insEscLabel').textContent    =parseFloat(document.getElementById('insEsc').value).toFixed(1)+'%/yr';
+  document.getElementById('insLevelLabel').textContent  ='$'+levelPrem+'/mo';
+  document.getElementById('insAffordLabel').textContent ='$'+afford+'/mo';
+
+  const premData=[],levelData=[],ceilData=[];
+  let cliffYear=null,cliffAge=null,crossoverYear=null,crossoverAge=null;
+  for(let y=0;y<=22;y++){
+    const year=INS_BASE_YEAR+y;
+    const prem=Math.round(basePrem*Math.pow(1+escRate,y));
+    premData.push({x:year,y:prem});levelData.push({x:year,y:levelPrem});ceilData.push({x:year,y:afford});
+    if(!cliffYear&&prem>afford){cliffYear=year;cliffAge=INS_AGE_START+y;}
+    if(!crossoverYear&&prem>levelPrem){crossoverYear=year;crossoverAge=INS_AGE_START+y;}
+  }
+
+  const crossoverEl=document.getElementById('insCrossoverNote');
+  if(crossoverYear){
+    const yearsTo=crossoverYear-INS_BASE_YEAR;
+    const extra=Math.round(Array.from({length:yearsTo},(_,y)=>(levelPrem-Math.round(basePrem*Math.pow(1+escRate,y)))*12).reduce((a,b)=>a+b,0));
+    crossoverEl.textContent=`Age ${crossoverAge} (${crossoverYear}) — $${extra.toLocaleString()} extra paid before break-even`;
+    crossoverEl.style.color='var(--accent2)';
+  } else {
+    crossoverEl.textContent='Never within projection — level always more expensive';
+    crossoverEl.style.color='var(--danger)';
+  }
+
+  document.getElementById('insCliffYear').textContent=cliffYear?`Age ${cliffAge} (${cliffYear})`:'No cliff — stays within budget';
+  document.getElementById('insCliffNote').textContent=cliffYear
+    ?`Premium hits $${Math.round(basePrem*Math.pow(1+escRate,cliffYear-INS_BASE_YEAR))}/mo — reduce cover before this point.`
+    :`Premiums stay affordable across the full projection.`;
+
+  const pc=getPremChart();
+  if(pc){pc.data.datasets[0].data=premData;pc.data.datasets[1].data=levelData;pc.data.datasets[2].data=ceilData;pc.update('none');}
+
+  // Crisis checklist (hardcoded personal facts + live data)
+  const currentNetDebt=mortgageByYear[INS_BASE_YEAR]??netDebtToday;
+  const currentKs=ksByYear[INS_BASE_YEAR]??0;
+  const offsetBuffer=21000;
+  const checks=[
+    {label:'Liquid asset buffer',desc:`Offset ~$${Math.round(offsetBuffer/1000)}k accessible. KiwiSaver locked until 65.`,pass:offsetBuffer>=30000,passText:'Adequate buffer',failText:'Low buffer — crisis cover critical'},
+    {label:'Mortgage vs liquid assets',desc:`Net debt $${Math.round(currentNetDebt/1000)}k vs KiwiSaver $${Math.round(currentKs/1000)}k (locked).`,pass:currentNetDebt===0,passText:'Mortgage clear',failText:'Mortgage active — cover needed'},
+    {label:'Household income resilience',desc:'Partner income available. No income protection on this policy.',pass:false,passText:'Income protected',failText:'No income protection — crisis lump sum fills this gap'},
+    {label:'Dependants at home',desc:`Children aged ${child1Age} and ${child2Age}. Last independent ~${lastDepYear}.`,pass:false,passText:'No dependants',failText:`Dependants rely on your income until ~${lastDepYear}`},
+    {label:'Family health history',desc:'GP fully assessed (2025). Cousins = third degree, no elevated BRCA risk. Paternal cardiac/stroke history — likely not hereditary. BP and bloods normal.',pass:true,passText:'GP assessed — all clear',failText:'Elevated risk — hold cover'},
+    {label:'Policy underwriting status',desc:'Policy in force with no exclusions. Reinstatement after cancellation risks loading.',pass:false,passText:'Could reinstate easily',failText:'Existing cover is clean — do not cancel without specialist advice'},
+  ];
+
+  const passCount=checks.filter(c=>c.pass).length;
+  const verdict=passCount>=5?['Consider reducing','var(--accent)']:passCount>=3?['Review at next milestone','var(--accent2)']:['Maintain current cover','var(--danger)'];
+  const verdictEl=document.getElementById('crisisVerdict');
+  verdictEl.textContent=verdict[0];
+  verdictEl.style.background=verdict[1]==='var(--danger)'?'rgba(224,92,106,0.12)':verdict[1]==='var(--accent2)'?'rgba(240,160,90,0.12)':'rgba(88,196,160,0.12)';
+  verdictEl.style.color=verdict[1];
+
+  document.getElementById('crisisChecklist').innerHTML=checks.map(c=>`
+    <div class="checklist-row">
+      <div style="width:8px;height:8px;border-radius:50%;margin-top:4px;background:${c.pass?'var(--accent)':'var(--danger)'}"></div>
+      <div>
+        <div style="font-size:10px;color:var(--text);font-weight:500;margin-bottom:2px">${c.label}</div>
+        <div style="font-size:9px;color:var(--muted);line-height:1.5">${c.desc}</div>
+      </div>
+      <div style="font-size:9px;font-weight:500;color:${c.pass?'var(--accent)':'var(--danger)'};white-space:nowrap;text-align:right;padding-top:2px">${c.pass?c.passText:c.failText.split('—')[0]}</div>
+    </div>
+  `).join('');
+
+  // Save insurance state
+  saveSuite({insurance:{child1Age,child2Age,indepAge,upsizeOn,upsizePrice,upsizeEquity,basePrem,escRate:parseFloat(document.getElementById('insEsc').value),levelPrem,afford,milestones}});
+  document.getElementById('syncBadge').textContent='● synced';
+}
+
+// ── Load state ────────────────────────────────────────────────────────────────
+function loadState(){
+  const s=loadSuite();
+  const ins=s.insurance;
+  if(!ins) return;
+  const set=(id,val)=>{const el=document.getElementById(id);if(el&&val!=null)el.value=val;};
+  set('insChild1',ins.child1Age);set('insChild2',ins.child2Age);set('insIndepAge',ins.indepAge);
+  if(ins.upsizeOn!=null) document.getElementById('upsizeToggle').checked=ins.upsizeOn;
+  set('upsizePrice',ins.upsizePrice);set('upsizeEquity',ins.upsizeEquity);
+  set('insPrem',ins.basePrem);set('insEsc',ins.escRate);set('insLevel',ins.levelPrem);set('insAfford',ins.afford);
+  if(ins.milestones&&Array.isArray(ins.milestones)&&ins.milestones.length){ milestones=ins.milestones.map(m=>({...m})); }
+}
+
+loadState();
+renderMilestones();
+['insChild1','insChild2','insIndepAge','upsizePrice','upsizeEquity',
+ 'insPrem','insEsc','insLevel','insAfford']
+  .forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input',update); });
+document.getElementById('upsizeToggle').addEventListener('change',update);
+update();
+</script>
+</body>
+</html>
