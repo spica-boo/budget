@@ -100,7 +100,12 @@ canvas{width:100%!important;height:100%!important}
   <a href="02-kiwisaver.html">③ KiwiSaver & Wealth</a>
   <a href="03-insurance.html">④ Insurance</a>
   <a href="05-action-plan.html">⑤ Action Plan</a>
+  <a href="05-action-plan.html">⑤ Action Plan</a>
   <span class="sync-badge" id="syncBadge">● synced</span>
+  <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+    <button onclick="exportSuite()" style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬇ Export</button>
+    <label style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Import<input type="file" accept=".json" onchange="importSuite(event)" style="display:none"></label>
+  </div>
   <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
     <button onclick="exportSuite()" style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬇ Export</button>
     <label style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Import<input type="file" accept=".json" onchange="importSuite(event)" style="display:none"></label>
@@ -888,7 +893,41 @@ loadState();
 renderAllBillLists();
 ['ratesBal','ratesContrib','insBal','insContrib','kidsBal','kidsContrib']
   .forEach(id=>document.getElementById(id).addEventListener('input',update));
-update();
+setTimeout(update, 50);
+
+// ── Backup / Restore ─────────────────────────────────────────────────────────
+function exportSuite() {
+  const data = localStorage.getItem('alisterway_suite_v1') || '{}';
+  const date = new Date().toISOString().slice(0,10);
+  const filename = 'alisterway-backup-' + date + '.json';
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+}
+function importSuite(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!confirm('This will overwrite all current data with the backup. Continue?')) return;
+      localStorage.setItem('alisterway_suite_v1', JSON.stringify(parsed));
+      alert('Restored successfully. Reloading...');
+      location.reload();
+    } catch(err) {
+      alert('Invalid backup file - could not restore.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
 
 // ── Backup / Restore ─────────────────────────────────────────────────────────
 function exportSuite() {
