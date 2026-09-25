@@ -98,7 +98,6 @@ canvas{width:100%!important;height:100%!important}
   <a href="02-kiwisaver.html">③ KiwiSaver & Wealth</a>
   <a href="03-insurance.html">④ Insurance</a>
   <a href="05-action-plan.html">⑤ Action Plan</a>
-  <a href="05-action-plan.html">⑤ Action Plan</a>
   <span class="sync-badge" id="syncBadge">● synced</span>
   <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
     <button onclick="exportSuite()" style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬇ Export</button>
@@ -636,12 +635,22 @@ function importSuite(e) {
   reader.onload = function(ev) {
     try {
       const parsed = JSON.parse(ev.target.result);
-      if (!confirm('This will overwrite all current data with the backup. Continue?')) return;
+      // Write directly without confirm() — browsers block it on hosted pages
       localStorage.setItem('alisterway_suite_v1', JSON.stringify(parsed));
-      alert('Restored successfully. Reloading...');
-      location.reload();
+      // Verify it wrote correctly
+      const check = localStorage.getItem('alisterway_suite_v1');
+      if (!check) { alert('Import failed — localStorage write was blocked.'); return; }
+      // Show inline banner instead of alert()
+      const banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#58c4a0;color:#0d1117;text-align:center;padding:12px;font-family:DM Mono,monospace;font-size:13px;font-weight:500;z-index:9999';
+      banner.textContent = 'Backup restored successfully — reloading...';
+      document.body.appendChild(banner);
+      setTimeout(function(){ location.reload(); }, 1200);
     } catch(err) {
-      alert('Invalid backup file - could not restore.');
+      const banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#e05c6a;color:#fff;text-align:center;padding:12px;font-family:DM Mono,monospace;font-size:13px;z-index:9999';
+      banner.textContent = 'Invalid backup file — could not restore.';
+      document.body.appendChild(banner);
     }
   };
   reader.readAsText(file);
@@ -670,12 +679,22 @@ function importSuite(e) {
   reader.onload = function(ev) {
     try {
       const parsed = JSON.parse(ev.target.result);
-      if (!confirm('This will overwrite all current data with the backup. Continue?')) return;
+      // Write directly without confirm() — browsers block it on hosted pages
       localStorage.setItem('alisterway_suite_v1', JSON.stringify(parsed));
-      alert('Restored successfully. Reloading...');
-      location.reload();
+      // Verify it wrote correctly
+      const check = localStorage.getItem('alisterway_suite_v1');
+      if (!check) { alert('Import failed — localStorage write was blocked.'); return; }
+      // Show inline banner instead of alert()
+      const banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#58c4a0;color:#0d1117;text-align:center;padding:12px;font-family:DM Mono,monospace;font-size:13px;font-weight:500;z-index:9999';
+      banner.textContent = 'Backup restored successfully — reloading...';
+      document.body.appendChild(banner);
+      setTimeout(function(){ location.reload(); }, 1200);
     } catch(err) {
-      alert('Invalid backup file - could not restore.');
+      const banner = document.createElement('div');
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#e05c6a;color:#fff;text-align:center;padding:12px;font-family:DM Mono,monospace;font-size:13px;z-index:9999';
+      banner.textContent = 'Invalid backup file — could not restore.';
+      document.body.appendChild(banner);
     }
   };
   reader.readAsText(file);
