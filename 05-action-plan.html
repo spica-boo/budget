@@ -495,7 +495,18 @@ function render() {
 // ── Interactions ──────────────────────────────────────────────────────────────
 function togMo(bId,tId){const el=document.getElementById(bId),t=document.getElementById(tId);if(el.style.display==='none'){el.style.display='';t.textContent='▼';}else{el.style.display='none';t.textContent='▶';}}
 function toggleDone(id){const d=getDone();d.has(id)?d.delete(id):d.add(id);putDone(d);render();}
-function clearDone(){putDone(new Set());render();}
+function clearDone(){
+  const done = getDone();
+  // Delete any custom reminders whose occurrences are all done
+  const reminders = getReminders();
+  const toRemove = reminders.filter(r =>
+    expandCustom(r).every(item => done.has(item.uid))
+  ).map(r => r.id);
+  if (toRemove.length) putReminders(reminders.filter(r => !toRemove.includes(r.id)));
+  // Clear done set so auto-items reappear fresh
+  putDone(new Set());
+  render();
+}
 function setH(n,btn){horizon=n;document.querySelectorAll('.hbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
 function toggleChip(tag,el){
   if(tag==='all'){filters=new Set(['all']);document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.classList.contains('all')));}
