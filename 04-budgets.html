@@ -105,10 +105,6 @@ canvas{width:100%!important;height:100%!important}
     <button onclick="exportSuite()" style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬇ Export</button>
     <label style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Import<input type="file" accept=".json" onchange="importSuite(event)" style="display:none"></label>
   </div>
-  <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
-    <button onclick="exportSuite()" style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬇ Export</button>
-    <label style="padding:4px 11px;border-radius:5px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;border:1px solid var(--border);color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⬆ Import<input type="file" accept=".json" onchange="importSuite(event)" style="display:none"></label>
-  </div>
 </nav>
 <h1>Budget Buckets</h1>
 <p class="subtitle" id="pageSubtitle">Sinking funds — 12-month rolling view</p>
@@ -287,7 +283,7 @@ canvas{width:100%!important;height:100%!important}
       </div>
       <div class="bucket-metrics">
         <div class="metric"><div class="label">Balance now</div><div class="value" id="kidsBalNow" style="color:var(--kids)">—</div></div>
-        <div class="metric"><div class="label">Annual spend</div><div class="value" id="kidsAnnualSpend" style="color:var(--accent2)">—</div></div>
+        <div class="metric"><div class="label">Total future costs</div><div class="value" id="kidsAnnualSpend" style="color:var(--accent2)">—</div></div>
         <div class="metric"><div class="label">Year-end balance</div><div class="value" id="kidsYearEnd" style="color:var(--muted)">—</div></div>
       </div>
       <div class="bucket-bar-wrap"><div class="bucket-bar" id="kidsBar" style="background:var(--kids)"></div></div>
@@ -337,27 +333,46 @@ let insuranceBills = [
   {month:8, year:2026, amount:0,    desc:'Contents insurance'},
 ];
 let kidsBills = [
+  // 2026 donation tax credits (received Feb 2027)
+  {month:1, year:2027, amount:-101, desc:'Tax credit — Miss 12 school donation 2026'},
+  {month:1, year:2027, amount:-83,  desc:'Tax credit — Miss 6 school donation 2026'},
   // Miss 12 — College startup 2027
   {month:0, year:2027, amount:1000, desc:'Miss 12 — College uniform & shoes'},
   {month:1, year:2027, amount:500,  desc:'Miss 12 — College fee Y9'},
+  {month:1, year:2028, amount:-150, desc:'Tax credit — Miss 12 college donation (Y9)'},
   {month:1, year:2028, amount:500,  desc:'Miss 12 — College fee Y10'},
+  {month:1, year:2029, amount:-150, desc:'Tax credit — Miss 12 college donation (Y10)'},
   {month:1, year:2029, amount:500,  desc:'Miss 12 — College fee Y11'},
+  {month:1, year:2030, amount:-150, desc:'Tax credit — Miss 12 college donation (Y11)'},
   {month:1, year:2030, amount:500,  desc:'Miss 12 — College fee Y12'},
+  {month:1, year:2031, amount:-150, desc:'Tax credit — Miss 12 college donation (Y12)'},
   {month:1, year:2031, amount:500,  desc:'Miss 12 — College fee Y13'},
+  {month:1, year:2032, amount:-150, desc:'Tax credit — Miss 12 college donation (Y13)'},
   // Miss 6 — Primary 2027–2032
   {month:1, year:2027, amount:900,  desc:'Miss 6 — Primary fee Y3'},
+  {month:1, year:2028, amount:-90,  desc:'Tax credit — Miss 6 primary donation (Y3)'},
   {month:1, year:2028, amount:900,  desc:'Miss 6 — Primary fee Y4'},
+  {month:1, year:2029, amount:-90,  desc:'Tax credit — Miss 6 primary donation (Y4)'},
   {month:1, year:2029, amount:900,  desc:'Miss 6 — Primary fee Y5'},
+  {month:1, year:2030, amount:-90,  desc:'Tax credit — Miss 6 primary donation (Y5)'},
   {month:1, year:2030, amount:900,  desc:'Miss 6 — Primary fee Y6'},
+  {month:1, year:2031, amount:-90,  desc:'Tax credit — Miss 6 primary donation (Y6)'},
   {month:1, year:2031, amount:900,  desc:'Miss 6 — Primary fee Y7'},
+  {month:1, year:2032, amount:-90,  desc:'Tax credit — Miss 6 primary donation (Y7)'},
   {month:1, year:2032, amount:900,  desc:'Miss 6 — Primary fee Y8'},
+  {month:1, year:2033, amount:-90,  desc:'Tax credit — Miss 6 primary donation (Y8)'},
   // Miss 6 — College startup & fees 2033–2037
   {month:0, year:2033, amount:1000, desc:'Miss 6 — College uniform & shoes'},
   {month:1, year:2033, amount:500,  desc:'Miss 6 — College fee Y9'},
+  {month:1, year:2034, amount:-150, desc:'Tax credit — Miss 6 college donation (Y9)'},
   {month:1, year:2034, amount:500,  desc:'Miss 6 — College fee Y10'},
+  {month:1, year:2035, amount:-150, desc:'Tax credit — Miss 6 college donation (Y10)'},
   {month:1, year:2035, amount:500,  desc:'Miss 6 — College fee Y11'},
+  {month:1, year:2036, amount:-150, desc:'Tax credit — Miss 6 college donation (Y11)'},
   {month:1, year:2036, amount:500,  desc:'Miss 6 — College fee Y12'},
+  {month:1, year:2037, amount:-150, desc:'Tax credit — Miss 6 college donation (Y12)'},
   {month:1, year:2037, amount:500,  desc:'Miss 6 — College fee Y13'},
+  {month:1, year:2038, amount:-150, desc:'Tax credit — Miss 6 college donation (Y13)'},
 ];
 
 // ── Bill list renderers ───────────────────────────────────────────────────────
@@ -505,12 +520,17 @@ function kidsMillestones(startBal, monthlyContrib, bills) {
   const minMonth = sim.data.find(d=>d.balance===minBal);
 
   // Miss 12 college ready: balance at Jan 2027 before bills
+  // = Dec balance + Jan contribution (sim records balance after bills, so we add contrib back)
   const miss12ReadyIdx = sim.data.findIndex(d=>d.year===2027&&d.month===0);
-  const miss12Ready = miss12ReadyIdx>=0 ? sim.data[Math.max(0,miss12ReadyIdx-1)]?.balance : null;
+  const miss12Ready = miss12ReadyIdx>=0
+    ? (sim.data[Math.max(0,miss12ReadyIdx-1)]?.balance||0) + monthlyContrib
+    : null;
 
   // Miss 6 college ready: balance at Jan 2033 before bills
   const miss6ReadyIdx = sim.data.findIndex(d=>d.year===2033&&d.month===0);
-  const miss6Ready = miss6ReadyIdx>=0 ? sim.data[Math.max(0,miss6ReadyIdx-1)]?.balance : null;
+  const miss6Ready = miss6ReadyIdx>=0
+    ? (sim.data[Math.max(0,miss6ReadyIdx-1)]?.balance||0) + monthlyContrib
+    : null;
 
   return {sim, totalCosts, selfFundMonth, minBal, minMonth, miss12Ready, miss6Ready};
 }
@@ -720,7 +740,7 @@ function update() {
   const kidsStatus = document.getElementById('kidsStatus');
   kidsStatus.textContent = kidsA.statusText;
   kidsStatus.className   = `bucket-status ${kidsA.status}`;
-  const kidsAnnualSpend = kidsBills.reduce((s,b)=>s+b.amount,0);
+  const kidsAnnualSpend = kidsBills.reduce((s,b)=>s+(b.amount>0?b.amount:0),0);
   document.getElementById('kidsBalNow').textContent       = fmt(kidsBal);
   document.getElementById('kidsAnnualSpend').textContent  = fmt(kidsAnnualSpend);
   const kidsYearEndEntry = kidsSim.data.find(d=>d.year===todayYear&&d.month===11) || kidsSim.data[kidsSim.data.length-1];
@@ -735,7 +755,7 @@ function update() {
   months12.forEach((m,idx)=>{
     if(idx>0){kbal+=kidsContrib; allKidsEvents.push({label:m.label,desc:'Contribution',amount:kidsContrib,bal:kbal,type:'credit'});}
     kidsBills.filter(b=>b.month===m.month&&b.year===m.year).forEach(b=>{
-      kbal-=b.amount; allKidsEvents.push({label:m.label,desc:b.desc,amount:-b.amount,bal:kbal,type:'debit'});
+      kbal-=b.amount; allKidsEvents.push({label:m.label,desc:b.desc,amount:Math.abs(b.amount),bal:kbal,type:b.amount<0?'credit':'debit'});
     });
   });
   document.getElementById('kidsEvents').innerHTML = allKidsEvents
@@ -761,8 +781,8 @@ function update() {
   kidsLongChart.update('none');
 
   // Milestone cards
-  const miss12CostTotal = kidsBills.filter(b=>b.desc.includes('Miss 12')&&new Date(b.year,b.month,1)>=new Date(todayYear,todayMonth,1)).reduce((s,b)=>s+b.amount,0);
-  const miss6CostTotal  = kidsBills.filter(b=>b.desc.includes('Miss 6')&&new Date(b.year,b.month,1)>=new Date(todayYear,todayMonth,1)).reduce((s,b)=>s+b.amount,0);
+  const miss12CostTotal = kidsBills.filter(b=>b.desc.includes('Miss 12')&&b.amount>0&&new Date(b.year,b.month,1)>=new Date(todayYear,todayMonth,1)).reduce((s,b)=>s+b.amount,0);
+  const miss6CostTotal  = kidsBills.filter(b=>b.desc.includes('Miss 6')&&b.amount>0&&new Date(b.year,b.month,1)>=new Date(todayYear,todayMonth,1)).reduce((s,b)=>s+b.amount,0);
   const selfFundLabel   = km.selfFundMonth ? `${km.selfFundMonth.label}` : 'Beyond projection';
   const miss12Ready     = km.miss12Ready !== null ? (km.miss12Ready >= 1000 ? '✓' : '⚠') : '?';
   const miss6Ready      = km.miss6Ready  !== null ? (km.miss6Ready  >= 1000 ? '✓' : '⚠') : '?';
@@ -834,24 +854,46 @@ const DEFAULT_INS_BILLS = [
   {month:8, year:2026, amount:0,    desc:'Contents insurance'},
 ];
 const DEFAULT_KIDS_BILLS = [
+  // 2026 donation tax credits (received Feb 2027)
+  {month:1, year:2027, amount:-101, desc:'Tax credit — Miss 12 school donation 2026'},
+  {month:1, year:2027, amount:-83,  desc:'Tax credit — Miss 6 school donation 2026'},
+  // Miss 12 — College startup 2027
   {month:0, year:2027, amount:1000, desc:'Miss 12 — College uniform & shoes'},
   {month:1, year:2027, amount:500,  desc:'Miss 12 — College fee Y9'},
+  {month:1, year:2028, amount:-150, desc:'Tax credit — Miss 12 college donation (Y9)'},
   {month:1, year:2028, amount:500,  desc:'Miss 12 — College fee Y10'},
+  {month:1, year:2029, amount:-150, desc:'Tax credit — Miss 12 college donation (Y10)'},
   {month:1, year:2029, amount:500,  desc:'Miss 12 — College fee Y11'},
+  {month:1, year:2030, amount:-150, desc:'Tax credit — Miss 12 college donation (Y11)'},
   {month:1, year:2030, amount:500,  desc:'Miss 12 — College fee Y12'},
+  {month:1, year:2031, amount:-150, desc:'Tax credit — Miss 12 college donation (Y12)'},
   {month:1, year:2031, amount:500,  desc:'Miss 12 — College fee Y13'},
+  {month:1, year:2032, amount:-150, desc:'Tax credit — Miss 12 college donation (Y13)'},
+  // Miss 6 — Primary 2027–2032
   {month:1, year:2027, amount:900,  desc:'Miss 6 — Primary fee Y3'},
+  {month:1, year:2028, amount:-90,  desc:'Tax credit — Miss 6 primary donation (Y3)'},
   {month:1, year:2028, amount:900,  desc:'Miss 6 — Primary fee Y4'},
+  {month:1, year:2029, amount:-90,  desc:'Tax credit — Miss 6 primary donation (Y4)'},
   {month:1, year:2029, amount:900,  desc:'Miss 6 — Primary fee Y5'},
+  {month:1, year:2030, amount:-90,  desc:'Tax credit — Miss 6 primary donation (Y5)'},
   {month:1, year:2030, amount:900,  desc:'Miss 6 — Primary fee Y6'},
+  {month:1, year:2031, amount:-90,  desc:'Tax credit — Miss 6 primary donation (Y6)'},
   {month:1, year:2031, amount:900,  desc:'Miss 6 — Primary fee Y7'},
+  {month:1, year:2032, amount:-90,  desc:'Tax credit — Miss 6 primary donation (Y7)'},
   {month:1, year:2032, amount:900,  desc:'Miss 6 — Primary fee Y8'},
+  {month:1, year:2033, amount:-90,  desc:'Tax credit — Miss 6 primary donation (Y8)'},
+  // Miss 6 — College startup & fees 2033–2037
   {month:0, year:2033, amount:1000, desc:'Miss 6 — College uniform & shoes'},
   {month:1, year:2033, amount:500,  desc:'Miss 6 — College fee Y9'},
+  {month:1, year:2034, amount:-150, desc:'Tax credit — Miss 6 college donation (Y9)'},
   {month:1, year:2034, amount:500,  desc:'Miss 6 — College fee Y10'},
+  {month:1, year:2035, amount:-150, desc:'Tax credit — Miss 6 college donation (Y10)'},
   {month:1, year:2035, amount:500,  desc:'Miss 6 — College fee Y11'},
+  {month:1, year:2036, amount:-150, desc:'Tax credit — Miss 6 college donation (Y11)'},
   {month:1, year:2036, amount:500,  desc:'Miss 6 — College fee Y12'},
+  {month:1, year:2037, amount:-150, desc:'Tax credit — Miss 6 college donation (Y12)'},
   {month:1, year:2037, amount:500,  desc:'Miss 6 — College fee Y13'},
+  {month:1, year:2038, amount:-150, desc:'Tax credit — Miss 6 college donation (Y13)'},
 ];
 
 function resetBucket(bucket) {
@@ -916,66 +958,12 @@ function importSuite(e) {
   reader.onload = function(ev) {
     try {
       const parsed = JSON.parse(ev.target.result);
-      // Write directly without confirm() — browsers block it on hosted pages
+      if (!confirm('This will overwrite all current data with the backup. Continue?')) return;
       localStorage.setItem('alisterway_suite_v1', JSON.stringify(parsed));
-      // Verify it wrote correctly
-      const check = localStorage.getItem('alisterway_suite_v1');
-      if (!check) { alert('Import failed — localStorage write was blocked.'); return; }
-      // Show inline banner instead of alert()
-      const banner = document.createElement('div');
-      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#58c4a0;color:#0d1117;text-align:center;padding:12px;font-family:DM Mono,monospace;font-size:13px;font-weight:500;z-index:9999';
-      banner.textContent = 'Backup restored successfully — reloading...';
-      document.body.appendChild(banner);
-      setTimeout(function(){ location.reload(); }, 1200);
+      alert('Restored successfully. Reloading...');
+      location.reload();
     } catch(err) {
-      const banner = document.createElement('div');
-      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#e05c6a;color:#fff;text-align:center;padding:12px;font-family:DM Mono,monospace;font-size:13px;z-index:9999';
-      banner.textContent = 'Invalid backup file — could not restore.';
-      document.body.appendChild(banner);
-    }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-}
-
-// ── Backup / Restore ─────────────────────────────────────────────────────────
-function exportSuite() {
-  const data = localStorage.getItem('alisterway_suite_v1') || '{}';
-  const date = new Date().toISOString().slice(0,10);
-  const filename = 'alisterway-backup-' + date + '.json';
-  const blob = new Blob([data], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
-}
-function importSuite(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    try {
-      const parsed = JSON.parse(ev.target.result);
-      // Write directly without confirm() — browsers block it on hosted pages
-      localStorage.setItem('alisterway_suite_v1', JSON.stringify(parsed));
-      // Verify it wrote correctly
-      const check = localStorage.getItem('alisterway_suite_v1');
-      if (!check) { alert('Import failed — localStorage write was blocked.'); return; }
-      // Show inline banner instead of alert()
-      const banner = document.createElement('div');
-      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#58c4a0;color:#0d1117;text-align:center;padding:12px;font-family:DM Mono,monospace;font-size:13px;font-weight:500;z-index:9999';
-      banner.textContent = 'Backup restored successfully — reloading...';
-      document.body.appendChild(banner);
-      setTimeout(function(){ location.reload(); }, 1200);
-    } catch(err) {
-      const banner = document.createElement('div');
-      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#e05c6a;color:#fff;text-align:center;padding:12px;font-family:DM Mono,monospace;font-size:13px;z-index:9999';
-      banner.textContent = 'Invalid backup file — could not restore.';
-      document.body.appendChild(banner);
+      alert('Invalid backup file - could not restore.');
     }
   };
   reader.readAsText(file);
