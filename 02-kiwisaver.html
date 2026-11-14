@@ -60,6 +60,29 @@ canvas{width:100%!important;height:100%!important}
 .bal-table td:first-child{text-align:left;color:var(--muted);font-size:10px}
 .bal-table tr:last-child td{border-bottom:none}
 .bal-table tr.crossover-yr td{color:var(--accent);font-weight:500}
+.ms-formula{font-size:10px;color:var(--muted);margin-bottom:10px;line-height:1.6}
+.ms-formula strong{color:var(--text);font-weight:500}
+.ms-headline{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.ms-hl-label{font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:3px}
+.ms-hl-val{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--accent);line-height:1}
+.ms-headline .ms-formula{margin:0;flex:1;min-width:220px}
+.ms-formula b{color:var(--text);font-weight:500}
+.ms-hint{opacity:0.8}
+.sec-label{font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin:16px 2px 8px;display:flex;align-items:center;gap:8px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.ms-caption{font-size:10px;color:var(--muted);line-height:1.6;margin:-4px 0 10px}
+.ms-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ms-card{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--mc,var(--accent3));border-radius:8px;padding:10px 12px}
+.ms-step{font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted)}
+.ms-title{font-size:11px;color:var(--text);margin:2px 0 6px;font-weight:500}
+.ms-year{font-family:'Fraunces',serif;font-size:24px;font-weight:600;color:var(--mc,var(--accent3));line-height:1}
+.ms-when{font-size:10px;color:var(--muted);margin:3px 0 7px}
+.ms-tag{display:inline-block;font-size:9px;font-weight:500;padding:1px 6px;border-radius:3px;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px}
+.ms-tag.paper{background:rgba(125,167,217,0.15);color:var(--accent3)}
+.ms-tag.real{background:rgba(88,196,160,0.15);color:var(--accent)}
+.ms-note{font-size:10px;color:var(--muted);line-height:1.5}
+.ms-note b{color:var(--text);font-weight:500}
+@media(max-width:700px){.ms-grid{grid-template-columns:1fr}}
 .sync-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:4px;background:rgba(88,196,160,0.1);border:1px solid rgba(88,196,160,0.25);font-size:9px;color:var(--accent);margin-left:auto}
 .import-notice{background:rgba(125,167,217,0.07);border:1px solid rgba(125,167,217,0.2);border-radius:6px;padding:8px 11px;font-size:10px;color:var(--muted);margin-bottom:10px;display:none}
 .import-notice strong{color:var(--accent3)}
@@ -250,44 +273,54 @@ canvas{width:100%!important;height:100%!important}
 
   <!-- RIGHT -->
   <div>
-    <!-- Accumulation headline cards -->
+    <!-- 1. Headline: net wealth today + the three milestones -->
     <div class="panel">
-      <div class="panel-title">At Age 65 — Accumulation Summary</div>
-      <div class="results-grid">
-        <div class="result-card" style="border-color:var(--accent3)">
-          <div class="label">KiwiSaver at 65</div>
-          <div class="value" id="ksAt65">—</div>
-          <div class="sub" id="ksAt65Sub">projected</div>
+      <div class="panel-title">Net Wealth &amp; Milestones</div>
+      <div class="ms-headline">
+        <div>
+          <div class="ms-hl-label">Net wealth today</div>
+          <div class="ms-hl-val" id="msNetNow">—</div>
         </div>
-        <div class="result-card" style="border-color:var(--accent)">
-          <div class="label" id="ksCrossLabel">Assets cover mortgage</div>
-          <div class="value" id="ksCrossYear" style="color:var(--accent)">—</div>
-          <div class="sub" id="ksCrossSub">year assets ≥ net debt</div>
-        </div>
-        <div class="result-card" id="netWealthCard">
-          <div class="label" id="ksNetLabel">Net Wealth (today)</div>
-          <div class="value" id="ksNetNow">—</div>
-          <div class="sub" id="ksNetSub">KiwiSaver − net debt</div>
-        </div>
+        <div class="ms-formula" id="msFormula"></div>
       </div>
+      <div class="ms-grid" id="msGrid"></div>
     </div>
 
-    <!-- Accumulation chart -->
+    <!-- 2. Chart that shows the milestones -->
+    <div class="sec-label">Behind the milestones</div>
     <div class="panel">
       <div class="panel-title">Net Wealth — KiwiSaver vs Mortgage Debt</div>
+      <div class="ms-caption"><b style="color:var(--accent3)">①</b> is where the blue KiwiSaver line crosses the red net debt line. Net debt reaches zero at <b style="color:var(--accent2)">②</b> (offset equals the mortgage balance). <b style="color:var(--accent)">③</b> is when the loan itself is fully repaid. The table below tags each year.</div>
       <div class="chart-area-lg"><canvas id="ksChart"></canvas></div>
     </div>
 
-    <!-- Retirement drawdown results -->
+    <!-- 3. Year-by-year table with milestone rows tagged -->
+    <div class="panel" style="overflow-y:auto;max-height:380px">
+      <div class="panel-title">Annual Net Wealth Table</div>
+      <div class="ms-caption">Rows tagged <b style="color:var(--accent3)">①</b> <b style="color:var(--accent2)">②</b> <b style="color:var(--accent)">③</b> are your milestone years.</div>
+      <table class="bal-table">
+        <thead><tr><th>Year / Age</th><th>KiwiSaver</th><th>Net Debt</th><th id="propHeader">Net Wealth</th></tr></thead>
+        <tbody id="ksTable"></tbody>
+      </table>
+    </div>
+
+    <!-- Career income timeline (shown when career phase-down is on) -->
     <div class="panel" id="careerChartPanel" style="display:none;margin-bottom:10px">
       <div class="panel-title">Career Income Timeline</div>
       <div style="position:relative;height:160px"><canvas id="careerChart"></canvas></div>
       <div id="careerPhaseLabels" style="display:flex;gap:10px;margin-top:8px;font-size:9px;flex-wrap:wrap"></div>
     </div>
 
+    <!-- 4. Retirement -->
+    <div class="sec-label">After 65 — retirement</div>
     <div class="panel">
       <div class="panel-title">Retirement Drawdown — Age 65 onwards</div>
       <div class="results-grid-2" style="margin-bottom:10px">
+        <div class="result-card" style="border-color:var(--accent3);grid-column:1/-1">
+          <div class="label">KiwiSaver at 65</div>
+          <div class="value" id="ksAt65">—</div>
+          <div class="sub" id="ksAt65Sub">projected</div>
+        </div>
         <div class="result-card" id="drawdownCard" style="border-color:var(--accent2)">
           <div class="label">Funds last until age</div>
           <div class="value" id="drawdownAge" style="color:var(--accent2)">—</div>
@@ -312,14 +345,6 @@ canvas{width:100%!important;height:100%!important}
       <div class="chart-area"><canvas id="drawdownChart"></canvas></div>
     </div>
 
-    <!-- Annual table -->
-    <div class="panel" style="overflow-y:auto;max-height:380px">
-      <div class="panel-title">Annual Net Wealth Table</div>
-      <table class="bal-table">
-        <thead><tr><th>Year / Age</th><th>KiwiSaver</th><th>Net Debt</th><th id="propHeader">Net Wealth</th></tr></thead>
-        <tbody id="ksTable"></tbody>
-      </table>
-    </div>
   </div>
 </div>
 
@@ -581,24 +606,69 @@ function update() {
 
   // Net wealth today
   const netWealthNow = propOn ? ksBal+propVal-netDebtToday : ksBal-netDebtToday;
-  const ksNetEl = document.getElementById('ksNetNow');
-  ksNetEl.textContent = fmt(netWealthNow);
-  ksNetEl.style.color = netWealthNow>=0?'var(--accent)':'var(--danger)';
-  document.getElementById('ksNetLabel').textContent = propOn?'True Net Wealth (today)':'Net Wealth (today)';
-  document.getElementById('ksNetSub').textContent   = propOn?'KiwiSaver + equity − debt':'KiwiSaver − net debt';
-  document.getElementById('ksCrossLabel').textContent= propOn?'Assets cover mortgage':'KiwiSaver covers mortgage';
 
-  // Crossover year
-  let ksCrossYear = null;
+  // ── Wealth milestones ──────────────────────────────────────────────────────
+  const nowYr = new Date().getFullYear();
+  const ageAt = y => AGE_START + (y - KS_START_YEAR);
+  const inYrs = y => { const n=Math.round(y-nowYr); return n<=0?'this year':`in ${n} yr${n===1?'':'s'}`; };
+
+  // ① KiwiSaver crossover (paper): first year KiwiSaver balance >= remaining net debt
+  let ms1 = null;
   for (const d of ksData) {
     const nd = getNetDebt(d.year);
-    const nw = d.balance+(propOn?propValueByYear(d.year):0)-nd;
-    if(nw>=0&&!ksCrossYear){ksCrossYear=d.year;break;}
+    if (nd > 0 && d.balance >= nd) { ms1 = d; break; }
   }
-  document.getElementById('ksCrossYear').textContent = ksCrossYear||'—';
-  document.getElementById('ksCrossSub').textContent  = ksCrossYear
-    ?(propOn?'KiwiSaver + equity ≥ net debt':'KiwiSaver ≥ net debt')
-    :"assets don't cover debt by 65";
+  const lastKs = ksData[ksData.length-1];
+  const debtAt65 = getNetDebt(lastKs.year);
+
+  // ② Offset crossover and ③ true payoff come from the Mortgage tool
+  const offsetYr = suite.mortgage?.crossoverYear ? Math.floor(suite.mortgage.crossoverYear) : null;
+  const payoffYr = suite.mortgage?.mortgageFreeYear || null;
+
+  const nwEl = document.getElementById('msNetNow');
+  nwEl.textContent = (netWealthNow<0?'−':'')+fmt(Math.abs(netWealthNow));
+  nwEl.style.color = netWealthNow>=0?'var(--accent)':'var(--danger)';
+  document.getElementById('msFormula').innerHTML = propOn
+    ? `= KiwiSaver <b>${fmt(ksBal)}</b> + property <b>${fmt(propVal)}</b> − net debt <b>${fmt(netDebtToday)}</b> <span class="ms-hint">(net debt = mortgage balance after offset)</span>`
+    : `= KiwiSaver <b>${fmt(ksBal)}</b> − net debt <b>${fmt(netDebtToday)}</b> <span class="ms-hint">· turn on Property in the left panel to include home equity</span>`;
+
+  const msCard = (color, step, title, tag, tagText, yearTxt, when, note) =>
+    `<div class="ms-card" style="--mc:${color}">
+      <div class="ms-step">${step}</div>
+      <div class="ms-title">${title}</div>
+      <div class="ms-year">${yearTxt}</div>
+      <div class="ms-when">${when}</div>
+      <span class="ms-tag ${tag}">${tagText}</span>
+      <div class="ms-note">${note}</div>
+    </div>`;
+
+  let card1;
+  if (!hasMortgageData) {
+    card1 = msCard('var(--accent3)','Milestone 1','KiwiSaver crossover','paper','Paper','—','','Open the Mortgage tool first so net debt is available.');
+  } else if (ms1) {
+    const nwThen = ms1.balance + (propOn?propValueByYear(ms1.year):0) - getNetDebt(ms1.year);
+    card1 = msCard('var(--accent3)','Milestone 1','KiwiSaver crossover','paper','Paper · locked until 65',
+      ms1.year, `age ${ms1.age} · ${inYrs(ms1.year)}`,
+      `KiwiSaver <b>${fmt(ms1.balance)}</b> ≥ net debt <b>${fmt(getNetDebt(ms1.year))}</b>. Net wealth then: <b>${fmt(nwThen)}</b>.<br>`+
+      (debtAt65>0 ? `Debt still outstanding at 65, so KiwiSaver could clear it then.` : `Mortgage is already cleared by 65, so this is a net wealth marker only.`));
+  } else {
+    card1 = msCard('var(--accent3)','Milestone 1','KiwiSaver crossover','paper','Paper','—','','KiwiSaver doesn\'t overtake net debt before 65.');
+  }
+
+  const card2 = offsetYr
+    ? msCard('var(--accent2)','Milestone 2','Offset crossover','real','Real · cash event',
+        offsetYr, `age ${ageAt(offsetYr)} · ${inYrs(offsetYr)}`,
+        `Offset balance equals the remaining mortgage. Net debt is zero and interest is close to nil. <b>Check break fees</b> before sweeping any fixed tranches.`)
+    : msCard('var(--accent2)','Milestone 2','Offset crossover','real','Real · cash event','—','',
+        suite.mortgage ? `Offset doesn\'t catch up with the balance. Increase offset contributions in the Mortgage tool.` : 'Open the Mortgage tool first.');
+
+  const card3 = payoffYr
+    ? msCard('var(--accent)','Milestone 3','Mortgage-free','real','Real · cash event',
+        payoffYr, `age ${ageAt(payoffYr)} · ${inYrs(payoffYr)}`,
+        `Loan balance is fully repaid and the mortgage is closed. This is the true payoff date.`)
+    : msCard('var(--accent)','Milestone 3','Mortgage-free','real','Real · cash event','—','','Open the Mortgage tool first.');
+
+  document.getElementById('msGrid').innerHTML = card1 + card2 + card3;
 
   // Accumulation chart
   ksChart.data.datasets[0].data = ksData.map(d=>({x:d.year,y:d.balance}));
@@ -645,10 +715,14 @@ function update() {
     const propV = propOn?propValueByYear(d.year):0;
     const nw = d.balance+propV-nd;
     const isPos = nw>=0;
-    const isCross = ksCrossYear&&d.year===ksCrossYear;
+    const marks = [];
+    if (ms1 && d.year===ms1.year) marks.push('① KiwiSaver ≥ debt');
+    if (offsetYr && d.year===offsetYr) marks.push('② offset = balance');
+    if (payoffYr && d.year===payoffYr) marks.push('③ mortgage-free');
+    const isCross = marks.length>0;
     const cls = isCross?'crossover-yr':'';
     const ksDisplay = propOn?`${fmt(d.balance)}+${fmt(propV)}`:fmt(d.balance);
-    return `<tr class="${cls}"><td>${d.year} / age ${d.age}${isCross?' 🎯':''}</td><td style="color:var(--accent3)">${ksDisplay}</td><td style="color:${nd>0?'var(--danger)':'var(--muted)'}">${nd>0?fmt(nd):'—'}</td><td style="color:${isPos?'var(--accent)':'var(--danger)'}">${fmt(nw)}</td></tr>`;
+    return `<tr class="${cls}"><td>${d.year} / age ${d.age}${isCross?` <span style="font-size:9px;color:var(--accent)">${marks.join(' · ')}</span>`:''}</td><td style="color:var(--accent3)">${ksDisplay}</td><td style="color:${nd>0?'var(--danger)':'var(--muted)'}">${nd>0?fmt(nd):'—'}</td><td style="color:${isPos?'var(--accent)':'var(--danger)'}">${fmt(nw)}</td></tr>`;
   }).join('');
 
   // Save to suite
@@ -659,6 +733,7 @@ function update() {
       propOn, propVal, propGrowth,
       annualSpend, nzSuper, drawReturn, drawInfl, targetAge,
       ksAt65,
+      ksCrossoverYear: ms1?ms1.year:null,
       ksByYear: Object.fromEntries(ksData.map(d=>[d.year,d.balance]))
     }
   });
